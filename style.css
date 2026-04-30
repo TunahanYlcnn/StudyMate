@@ -260,27 +260,22 @@ button[type="submit"] {
 }
 
 /* =========================================
-   YENİ: ŞIK VE MODERN BALONCUK TASARIMI
+   ŞIK VE MODERN BALONCUK TASARIMI
    ========================================= */
 
 #gorevBaloncugu {
     position: absolute;
     background: white;
     border: none;
-    /* Kaba yeşil çerçeveyi sildik */
     border-radius: 16px;
-    /* Köşeleri daha yumuşak yaptık */
     padding: 20px;
     width: 300px;
-    /* Standart ve estetik bir genişlik */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-    /* Modern derinlik gölgesi */
     z-index: 1000;
     transform: translate(-50%, -100%);
     margin-top: -10px;
 }
 
-/* Baloncuğun Altındaki Beyaz Üçgen Ok */
 #gorevBaloncugu::after {
     content: '';
     position: absolute;
@@ -290,12 +285,30 @@ button[type="submit"] {
     border-width: 10px 10px 0;
     border-style: solid;
     border-color: white transparent transparent transparent;
-    /* Yeşilden beyaza çevirdik */
     filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.05));
-    /* Üçgene de gölge verdik */
 }
 
-/* Baloncuk içindeki kutular daha zarif olsun */
+/* YENİ: Baloncuk içindeki listeye maksimum yükseklik verdik. 
+   Çok görev eklenirse liste dışarı taşmaz, kendi içinde kaydırılabilir (scroll) olur. */
+#baloncukMevcutGorevler {
+    max-height: 160px;
+    /* Yaklaşık 3-4 görevlik bir boy, sonrası için kaydırma çubuğu çıkar */
+    overflow-y: auto;
+    padding-right: 5px;
+    /* Kaydırma çubuğuna pay bıraktık */
+    margin-bottom: 10px;
+}
+
+/* İçerideki kaydırma çubuğunun şık tasarımı */
+#baloncukMevcutGorevler::-webkit-scrollbar {
+    width: 5px;
+}
+
+#baloncukMevcutGorevler::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+}
+
 #baloncukFormAlani input,
 #baloncukFormAlani textarea {
     padding: 10px 14px;
@@ -310,12 +323,10 @@ button[type="submit"] {
     justify-content: space-between;
     align-items: center;
     background: white;
-    /* İç zemin beyaz */
     padding: 10px 12px;
     margin-bottom: 8px;
     border-radius: 8px;
     border: 1px solid #eee;
-    /* İncecik kibar bir sınır */
     font-size: 14px;
     color: #333;
     font-weight: 500;
@@ -364,18 +375,15 @@ button[type="submit"] {
     color: white;
 }
 
-/* YENİ: Butonları yan yana dizmek için ayarlar */
 .baloncuk-butonlar {
     display: flex;
     gap: 10px;
-    /* İki buton arasına boşluk */
     margin-top: 10px;
 }
 
 .btn-kaydet,
 .btn-iptal {
     flex: 1;
-    /* Butonların genişliğini eşit olarak böler */
     border: none;
     padding: 10px;
     border-radius: 8px;
@@ -383,7 +391,6 @@ button[type="submit"] {
     font-weight: 600;
     transition: 0.3s;
     margin: 0;
-    /* Eski marginleri sıfırladık */
 }
 
 .btn-kaydet {

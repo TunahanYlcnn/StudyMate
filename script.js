@@ -7,6 +7,47 @@ let gosterilenYil = new Date().getFullYear();
 // Hangi görevi düzenlediğimizi bilgisayarın unutmaması için hafıza
 let duzenlenenGorevId = null;
 
+// ==========================================
+// YENİ: BALONCUĞUN KONUMUNU HESAPLAYAN FONKSİYON
+// (Bunu ayırdık ki hem tıklayınca hem de ekran boyutu değişince çalışsın)
+// ==========================================
+function baloncukKonumGuncelle() {
+    const baloncuk = document.getElementById('gorevBaloncugu');
+
+    // Eğer baloncuk kapalıysa hiç boşuna yorulup hesaplama yapma
+    if (baloncuk.classList.contains('gizli-tamamen')) return;
+
+    // Hangi günde olduğumuzu hafızadan (değişkenlerden) bulup, o kutunun ID'sini oluşturuyoruz
+    const kutuId = 'takvim-kutu-' + seciliYilBilgisi + '-' + seciliAyBilgisi + '-' + seciliGunNumarasi;
+    const tiklananGun = document.getElementById(kutuId);
+
+    // Eğer o kutuyu ekranda bulduysak yerini hesapla
+    if (tiklananGun) {
+        const kordinat = tiklananGun.getBoundingClientRect();
+
+        let hesaplananSol = kordinat.left + window.scrollX + (kordinat.width / 2);
+        const baloncukGenislikYarisi = 150; // CSS'te width:300px verdik, yarısı 150
+        const ekranGenisligi = window.innerWidth;
+
+        // Baloncuk ekranın solundan taşıyorsa, içeri it
+        if (hesaplananSol - baloncukGenislikYarisi < 10) {
+            hesaplananSol = baloncukGenislikYarisi + 10;
+        }
+        // Baloncuk ekranın sağından taşıyorsa, içeri it
+        else if (hesaplananSol + baloncukGenislikYarisi > ekranGenisligi - 10) {
+            hesaplananSol = ekranGenisligi - baloncukGenislikYarisi - 10;
+        }
+
+        // Hesaplanan o mükemmel konumu CSS'e yapıştır
+        baloncuk.style.left = hesaplananSol + 'px';
+        baloncuk.style.top = (kordinat.top + window.scrollY - 10) + 'px';
+    }
+}
+
+// SAYFA BOYUTU DEĞİŞTİĞİNDE (Resize) baloncuğun yerini otomatik güncelle
+window.addEventListener('resize', baloncukKonumGuncelle);
+
+
 window.onload = function () {
     zamanGuncelle();
     setInterval(zamanGuncelle, 1000);
@@ -205,32 +246,19 @@ function baloncukIceriginiGuncelleVeyaKapat() {
 
 function baloncukAc(olay, gun, ay, yil) {
     const baloncuk = document.getElementById('gorevBaloncugu');
-    const tiklananGun = olay.target;
-    const kordinat = tiklananGun.getBoundingClientRect();
 
-    // YENİ MATEMATİK: Baloncuğun ekran dışına taşmasını engelleyen sınır (Boundary) hesabı
-    let hesaplananSol = kordinat.left + window.scrollX + (kordinat.width / 2);
-    const baloncukGenislikYarisi = 150; // CSS'te width:300px verdik, yarısı 150 yapar
-    const ekranGenisligi = window.innerWidth;
-
-    // Eğer baloncuk en sola çarpıyorsa, içeri it
-    if (hesaplananSol - baloncukGenislikYarisi < 10) {
-        hesaplananSol = baloncukGenislikYarisi + 10;
-    }
-    // Eğer baloncuk en sağa çarpıyorsa, içeri it
-    else if (hesaplananSol + baloncukGenislikYarisi > ekranGenisligi - 10) {
-        hesaplananSol = ekranGenisligi - baloncukGenislikYarisi - 10;
-    }
-
-    baloncuk.style.left = hesaplananSol + 'px';
-    baloncuk.style.top = (kordinat.top + window.scrollY - 10) + 'px';
-    baloncuk.classList.remove('gizli-tamamen');
-
+    // Değişkenleri hafızaya aldık
     seciliGunNumarasi = gun;
     seciliAyBilgisi = ay;
     seciliYilBilgisi = yil;
     const ayIsimleri = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     seciliTarihBilgisi = gun + " " + ayIsimleri[ay] + " " + yil;
+
+    // Baloncuğu önce bir görünür yapıyoruz (gizli class'ını silerek)
+    baloncuk.classList.remove('gizli-tamamen');
+
+    // YENİ: Koordinatları ayarlasın diye az önce yazdığımız akıllı fonksiyonu çağırıyoruz
+    baloncukKonumGuncelle();
 
     const oGunkuGorevler = gorevler.filter(g => g.gunNo === gun && g.ayNo === ay && g.yilNo === yil);
 
