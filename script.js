@@ -137,31 +137,26 @@ function takvimOlustur() {
 }
 
 // ==========================================
-// YENİ: DIŞARI TIKLANINCA OTOMATİK KAYDETME VE KAPATMA
+// DIŞARI TIKLANINCA OTOMATİK KAYDETME VE KAPATMA
 // ==========================================
 document.addEventListener('click', function (olay) {
     const baloncuk = document.getElementById('gorevBaloncugu');
 
-    // Eğer baloncuk açık durumdaysa...
     if (!baloncuk.classList.contains('gizli-tamamen')) {
-        // Eğer tıklanan yer baloncuğun İÇİNDE DEĞİLSE ve TAKVİM GÜNÜ DEĞİLSE (Otomatik kapanmasını sağlar)
         if (!baloncuk.contains(olay.target) && !olay.target.classList.contains('takvim-gunu') && !olay.target.classList.contains('pasif-gun')) {
 
             const formAlani = document.getElementById('baloncukFormAlani');
 
-            // Eğer form alanı açıksa (yeni görev ekliyorsak veya düzenliyorsak) değişiklikleri otomatik kaydet
             if (!formAlani.classList.contains('gizli')) {
                 const konu = document.getElementById('baloncukKonu').value;
                 const icerik = document.getElementById('baloncukIcerik').value;
 
-                // İkisi de doluysa kaydet ve kapat, boşlarsa sadece kapat
                 if (konu.trim() !== "" && icerik.trim() !== "") {
                     baloncuktanKaydet();
                 } else {
                     baloncuguKapat();
                 }
             } else {
-                // Form değil de sadece liste açıksa direkt kapat
                 baloncuguKapat();
             }
         }
@@ -172,7 +167,6 @@ document.addEventListener('click', function (olay) {
 // DİNAMİK BALONCUK, SİLME VE DÜZENLEME SİSTEMİ
 // ==========================================
 
-// Baloncuk içindeki listeyi anlık yenileyen fonksiyon (Silme ve Tiklama işlemleri için)
 function baloncukIceriginiGuncelleVeyaKapat() {
     const baloncuk = document.getElementById('gorevBaloncugu');
     if (baloncuk.classList.contains('gizli-tamamen')) return;
@@ -182,7 +176,6 @@ function baloncukIceriginiGuncelleVeyaKapat() {
     const formAlani = document.getElementById('baloncukFormAlani');
     const yeniGorevBtn = document.getElementById('baloncukYeniGorevBtn');
 
-    // Eğer form açık değilse (listeye bakıyorsak) ekranı yenile
     if (!yeniGorevBtn.classList.contains('gizli')) {
         listeAlani.innerHTML = '';
 
@@ -191,11 +184,9 @@ function baloncukIceriginiGuncelleVeyaKapat() {
                 const satir = document.createElement('div');
                 satir.className = 'baloncuk-gorev-satiri';
 
-                // YENİ: Durum ikonları (Yapılmadıysa Çarpı ❌, Yapıldıysa Yeşil Tik ✅)
                 const durumIkonu = gorev.durum ? '✅' : '❌';
                 const yaziEfecti = gorev.durum ? 'ustu-cizili' : '';
 
-                // Kalem, Çöp Kutusu ve Durum ikonları eklendi
                 satir.innerHTML = `
                     <span class="${yaziEfecti}">${gorev.baslik}</span>
                     <div class="ikon-grubu">
@@ -207,7 +198,6 @@ function baloncukIceriginiGuncelleVeyaKapat() {
                 listeAlani.appendChild(satir);
             });
         } else {
-            // Eğer silme işlemi sonrası o gün hiç görev kalmadıysa baloncuğu kapat
             baloncuguKapat();
         }
     }
@@ -218,7 +208,21 @@ function baloncukAc(olay, gun, ay, yil) {
     const tiklananGun = olay.target;
     const kordinat = tiklananGun.getBoundingClientRect();
 
-    baloncuk.style.left = (kordinat.left + window.scrollX + (kordinat.width / 2)) + 'px';
+    // YENİ MATEMATİK: Baloncuğun ekran dışına taşmasını engelleyen sınır (Boundary) hesabı
+    let hesaplananSol = kordinat.left + window.scrollX + (kordinat.width / 2);
+    const baloncukGenislikYarisi = 150; // CSS'te width:300px verdik, yarısı 150 yapar
+    const ekranGenisligi = window.innerWidth;
+
+    // Eğer baloncuk en sola çarpıyorsa, içeri it
+    if (hesaplananSol - baloncukGenislikYarisi < 10) {
+        hesaplananSol = baloncukGenislikYarisi + 10;
+    }
+    // Eğer baloncuk en sağa çarpıyorsa, içeri it
+    else if (hesaplananSol + baloncukGenislikYarisi > ekranGenisligi - 10) {
+        hesaplananSol = ekranGenisligi - baloncukGenislikYarisi - 10;
+    }
+
+    baloncuk.style.left = hesaplananSol + 'px';
     baloncuk.style.top = (kordinat.top + window.scrollY - 10) + 'px';
     baloncuk.classList.remove('gizli-tamamen');
 
@@ -242,7 +246,6 @@ function baloncukAc(olay, gun, ay, yil) {
     if (oGunkuGorevler.length > 0) {
         formAlani.classList.add('gizli');
         yeniGorevBtn.classList.remove('gizli');
-        // Listeyi çizdir
         baloncukIceriginiGuncelleVeyaKapat();
     } else {
         formAlani.classList.remove('gizli');
@@ -269,12 +272,8 @@ function goreviDuzenle(id) {
     }
 }
 
-// YENİ: Çöp Kutusu İkonuna Tıklayınca Çalışan Sistem
 function goreviSil(id) {
-    // Tıkladığımız id'yi hariç tutarak listeyi yeniden oluşturuyoruz (Silme mantığı)
     gorevler = gorevler.filter(g => g.id !== id);
-
-    // Ekranı ve baloncuğun içini güncelliyoruz
     gorevleriEkranaYazdir();
     baloncukIceriginiGuncelleVeyaKapat();
 }
@@ -415,9 +414,6 @@ function gorevDurumuDegistir(id) {
         }
     });
 
-    // Aşağıdaki listeyi yeniler
     gorevleriEkranaYazdir();
-
-    // YENİ: Baloncuk açıksa onun içindeki Tik ve Çarpı ikonlarını da anında yeniler
     baloncukIceriginiGuncelleVeyaKapat();
 }
