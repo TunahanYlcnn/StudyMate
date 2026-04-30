@@ -1,0 +1,375 @@
+/* Tüm sayfanın temel renk ve yazı tipi ayarları */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* Üst Menü Görünümü */
+header {
+    background: linear-gradient(to right, #4CAF50, #2E7D32);
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Menüdeki Butonlar */
+nav button {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+nav button:hover {
+    background-color: white;
+    color: #2E7D32;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* İçeriklerin bulunduğu ana kutu */
+main {
+    max-width: 800px;
+    margin: 50px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+h2,
+h3 {
+    color: #2E7D32;
+    font-weight: 600;
+}
+
+/* Giriş Formu Ayarları */
+input,
+textarea {
+    width: 100%;
+    padding: 14px 15px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+button[type="submit"] {
+    width: 100%;
+    background: linear-gradient(to right, #4CAF50, #2E7D32);
+    color: white;
+    border: none;
+    padding: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* =========================================
+   TAKVİM VE BALONCUK TASARIMLARI
+   ========================================= */
+
+/* Takvim Üst Barı */
+.takvim-bari {
+    background: linear-gradient(to right, #2E7D32, #4CAF50);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+    transition: all 0.3s ease;
+}
+
+.takvim-bari:hover {
+    box-shadow: 0 6px 15px rgba(46, 125, 50, 0.3);
+}
+
+#takvimOku {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.ok-donmus {
+    transform: rotate(180deg);
+}
+
+/* Ay Değiştirici Menü Tasarımı */
+.ay-degistirici {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-bottom: none;
+}
+
+.ay-degistirici h3 {
+    margin: 0;
+    color: #333;
+}
+
+.ok-butonu {
+    background: white;
+    color: #2E7D32;
+    border: 1px solid #4CAF50;
+    padding: 5px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.ok-butonu:hover {
+    background: #4CAF50;
+    color: white;
+}
+
+/* YENİ: Haftanın Günleri (Pt, Sa, Ça...) Tasarımı */
+#haftaninGunleri {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 10px 20px 0 20px;
+    background: #fdfdfd;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    text-align: center;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+/* Takvim Izgarası */
+.gizli-takvim {
+    display: none;
+}
+
+#takvimIzgarasi {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 10px 20px 20px 20px;
+    background: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Takvimdeki Gün Kutuları (Resimdeki gibi kutusuz ve yuvarlak hatlı oldu) */
+.takvim-gunu {
+    background: transparent;
+    text-align: center;
+    font-weight: 400;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    border-radius: 50%;
+    border: 2px solid transparent;
+}
+
+.takvim-gunu:hover {
+    background: #e8f5e9;
+    color: #2E7D32;
+    font-weight: 600;
+}
+
+/* YENİ: Önceki/Sonraki Ayın Soluk Günleri (Resimdeki gibi) */
+.pasif-gun {
+    color: #ccc;
+    cursor: default;
+}
+
+.pasif-gun:hover {
+    background: transparent;
+    color: #ccc;
+    font-weight: 400;
+}
+
+/* GÜNÜN ÜSTÜNE GELİNCE ÇIKAN UFAK BİLGİ BALONCUĞU (HOVER TOOLTIP) */
+.takvim-gunu[data-konu]::after {
+    content: attr(data-konu);
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.takvim-gunu[data-konu]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: 120%;
+}
+
+/* Bugünün Kırmızı Çerçevesi (Senin istediğin gibi koddaki mantık aynı kaldı, yuvarlak uyumlandı) */
+.bugun-cercevesi {
+    border: 2px solid #F44336 !important;
+    font-weight: bold;
+}
+
+/* Günlerin Kalan Zamana Göre Renkleri (Çerçeve mantığı aynı, görsel yuvarlaklaştı) */
+.gun-yesil {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border-color: #2E7D32 !important;
+}
+
+.gun-sari {
+    background-color: #FFC107 !important;
+    color: black !important;
+    border-color: #FFA000 !important;
+}
+
+.gun-kirmizi {
+    background-color: #F44336 !important;
+    color: white !important;
+    border-color: #D32F2F !important;
+}
+
+/* Tıklanınca Yukarı Açılan Büyük Baloncuk (Kayıt Formu) */
+#gorevBaloncugu {
+    position: absolute;
+    background: white;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    padding: 20px;
+    width: 260px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transform: translate(-50%, -100%);
+    margin-top: -5px;
+}
+
+#gorevBaloncugu::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    margin-left: -12px;
+    border-width: 12px 12px 0;
+    border-style: solid;
+    border-color: #4CAF50 transparent transparent transparent;
+}
+
+/* Baloncuk İçi Butonlar */
+.btn-kaydet {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-iptal {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Takvim Altı Listeleme Alanı */
+.takvim-alti-kutu {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+
+.gorev-karti {
+    border-left: 5px solid #4CAF50;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.gorev-karti h3 {
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.gorev-karti p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.gorev-karti button {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.gorev-tamamlandi {
+    text-decoration: line-through;
+    opacity: 0.6;
+    border-left-color: #9e9e9e;
+}
+
+.gorev-tamamlandi button {
+    background-color: #9e9e9e;
+}
+
+.gizli {
+    display: none !important;
+}
+
+.gizli-tamamen {
+    display: none !important;
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>StudyMate</title>
+    <!-- Google Fonts'tan modern bir yazı tipi ekliyoruz -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- CSS dosyamızı buraya bağlıyoruz -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Üst Menü: Başlangıçta gizli olacak, giriş yapınca görünecek -->
+    <header id="anaMenu" class="gizli">
+        <h1>StudyMate</h1>
+        <nav>
+            <button onclick="sayfaGoster('planlamaSayfasi')">Görev Takvimi</button>
+            <button onclick="cikisYap()">Çıkış Yap</button>
+        </nav>
+    </header>
+
+    <!-- Ana İçerik Alanı -->
+    <main>
+        <!-- 1. GİRİŞ SAYFASI -->
+        <section id="girisSayfasi">
+            <h2>StudyMate'e Hoş Geldiniz</h2>
+            <p>Derslerinizi ve görevlerinizi akıllı takvim ile takip edin.</p>
+            <form id="girisFormu">
+                <input type="text" id="kullaniciAdi" placeholder="İsminiz" required>
+                <input type="email" id="kullaniciEposta" placeholder="E-posta Adresiniz" required>
+                <button type="submit">Giriş Yap</button>
+            </form>
+        </section>
+
+        <!-- 2. ÜST DÜZEY TAKVİM VE PLANLAMA SAYFASI -->
+        <section id="planlamaSayfasi" class="gizli">
+
+            <!-- TAKVİM BARI -->
+            <div class="takvim-bari" onclick="takvimiAcKapat()">
+                <div class="takvim-sol">Takvim</div>
+                <!-- Ortada günümüzün tam tarihi yazar -->
+                <div class="takvim-orta" id="tarihYazisi">Tarih Yükleniyor...</div>
+                <div class="takvim-sag">
+                    <span id="saatYazisi">Saat</span>
+                    <span id="takvimOku">▼</span>
+                </div>
+            </div>
+
+            <!-- AŞAĞI AÇILAN TAKVİM İZGARASI -->
+            <div id="takvimIcerik" class="gizli-takvim">
+
+                <!-- AY DEĞİŞTİRME MENÜSÜ -->
+                <div class="ay-degistirici">
+                    <button class="ok-butonu" onclick="ayDegistir(-1)">&#9664; Önceki Ay</button>
+                    <h3 id="gosterilenAyYazisi">Ay Yükleniyor...</h3>
+                    <button class="ok-butonu" onclick="ayDegistir(1)">Sonraki Ay &#9654;</button>
+                </div>
+
+                <!-- YENİ: HAFTANIN GÜNLERİ BAŞLIĞI (Resimdeki Gibi) -->
+                <div id="haftaninGunleri">
+                    <div>Pt</div>
+                    <div>Sa</div>
+                    <div>Ça</div>
+                    <div>Pe</div>
+                    <div>Cu</div>
+                    <div>Ct</div>
+                    <div>Pa</div>
+                </div>
+
+                <div id="takvimIzgarasi">
+                    <!-- Günler buraya JavaScript ile dizilecek -->
+                </div>
+            </div>
+
+            <!-- TAKVİM ALTINDAKİ LİSTELEME ALANI -->
+            <div class="takvim-alti-kutu">
+                <h3>Tüm Görevler ve Notlar</h3>
+                <div id="takvimAltiGorevler">
+                    <p>Henüz bir plan eklenmedi.</p>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- GİZLİ BALONCUK (Güne tıklanınca yukarı doğru açılır) -->
+    <div id="gorevBaloncugu" class="gizli-tamamen">
+        <input type="text" id="baloncukKonu" placeholder="Konu veya Ders İsmi">
+        <textarea id="baloncukIcerik" placeholder="Konunun açıklamasını giriniz..." rows="3"></textarea>
+        <button onclick="baloncuktanKaydet()" class="btn-kaydet">Kaydet</button>
+        <button onclick="baloncuguKapat()" class="btn-iptal">İptal</button>
+    </div>
+
+    <!-- JavaScript dosyamızı projenin en sonunda çağırıyoruz -->
+    <script src="script.js"></script>
+</body>
+
+</html>
