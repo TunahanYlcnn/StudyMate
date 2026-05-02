@@ -49,22 +49,19 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
    docker-compose up -d
 
 
-
 ### 3. Arka Planı (API) Çalıştırma
 
 1. Yine arka\_plan klasörü içindeki terminalde şu komutla gerekli Python eklentilerini kurun:
 
-&#x20;  ```bash
-
-&#x20;  pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
+  ```bash
+  pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
 
 
 
 2. Kurulum bittikten sonra API sunucumuzu başlatın:
 
-&#x20;  ```bash
-
-&#x20;  uvicorn main:app --reload
+  ```bash
+  uvicorn main:app --reload
 
 
 
