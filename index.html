@@ -3,29 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <title>StudyMate</title>
+    <!-- Google Fonts'tan modern bir yazı tipi ekliyoruz -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- CSS dosyamızı buraya bağlıyoruz -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Üst Menü: Başlangıçta gizli olacak, giriş yapınca görünecek -->
     <header id="anaMenu" class="gizli">
-        <h1>StudyMate</h1>
+        <!-- Giriş yapan kullanıcının adını yazdıracağız -->
+        <h1>StudyMate <span id="kullaniciKarsilama" style="font-size: 14px; font-weight: 300; margin-left: 10px;"></span></h1>
         <nav>
             <button onclick="sayfaGoster('planlamaSayfasi')">Görev Takvimi</button>
             <button onclick="cikisYap()">Çıkış Yap</button>
         </nav>
     </header>
 
+    <!-- Ana İçerik Alanı -->
     <main>
-        <section id="girisSayfasi">
-            <h2>StudyMate'e Hoş Geldiniz</h2>
-            <p>Derslerinizi ve görevlerinizi akıllı takvim ile takip edin.</p>
-            <form id="girisFormu">
-                <input type="text" id="kullaniciAdi" placeholder="İsminiz" required>
-                <input type="email" id="kullaniciEposta" placeholder="E-posta Adresiniz" required>
-                <button type="submit">Giriş Yap</button>
-            </form>
+        
+        <!-- YENİ: KULLANICI DOSTU GİRİŞ, KAYIT VE ŞİFRE SIFIRLAMA EKRANI -->
+        <section id="girisSayfasi" class="auth-section">
+            <div class="auth-kart">
+                
+                <!-- 1. GİRİŞ YAP FORMU -->
+                <div id="authGiris">
+                    <h2 style="text-align:center; color:#2E7D32; margin-bottom: 5px;">StudyMate</h2>
+                    <p style="text-align:center; color:#777; font-size:14px; margin-bottom: 20px;">Hesabınıza giriş yapın</p>
+                    <form id="girisFormu">
+                        <input type="text" id="girisKullaniciAdi" placeholder="Kullanıcı Adı" required>
+                        <input type="password" id="girisSifre" placeholder="Şifre" required>
+                        <button type="submit" class="btn-auth">Giriş Yap</button>
+                    </form>
+                    <div class="auth-alt-linkler">
+                        <a href="#" onclick="authEkranDegistir('authSifremiUnuttum')">Şifremi Unuttum</a>
+                        <a href="#" onclick="authEkranDegistir('authKayit')">Hesap Oluştur / Kayıt Ol</a>
+                    </div>
+                </div>
+
+                <!-- 2. KAYIT OL FORMU -->
+                <div id="authKayit" class="gizli">
+                    <h2 style="text-align:center; color:#2E7D32; margin-bottom: 5px;">Aramıza Katıl</h2>
+                    <p style="text-align:center; color:#777; font-size:14px; margin-bottom: 20px;">Yeni bir hesap oluşturun</p>
+                    <form id="kayitFormu">
+                        <input type="text" id="kayitKullaniciAdi" placeholder="Kullanıcı Adı belirleyin" required>
+                        <input type="email" id="kayitEposta" placeholder="E-posta Adresiniz" required>
+                        <input type="password" id="kayitSifre" placeholder="Şifre belirleyin" required>
+                        <button type="submit" class="btn-auth">Kayıt Ol</button>
+                    </form>
+                    <div class="auth-alt-linkler" style="justify-content: center;">
+                        <a href="#" onclick="authEkranDegistir('authGiris')">Zaten hesabım var, Giriş Yap</a>
+                    </div>
+                </div>
+
+                <!-- 3. ŞİFREMİ UNUTTUM FORMU -->
+                <div id="authSifremiUnuttum" class="gizli">
+                    <h2 style="text-align:center; color:#2E7D32; margin-bottom: 5px;">Şifremi Unuttum</h2>
+                    <p style="text-align:center; color:#777; font-size:14px; margin-bottom: 20px;">Kayıtlı e-postanızı girin, şifre sıfırlama linki gönderelim.</p>
+                    <form id="sifreSifirlaFormu">
+                        <input type="email" id="sifirlaEposta" placeholder="E-posta Adresiniz" required>
+                        <button type="submit" class="btn-auth">Şifremi Sıfırla</button>
+                    </form>
+                    <div class="auth-alt-linkler" style="justify-content: center;">
+                        <a href="#" onclick="authEkranDegistir('authGiris')">Giriş Ekranına Dön</a>
+                    </div>
+                </div>
+
+            </div>
         </section>
 
+        <!-- ÜST DÜZEY TAKVİM VE PLANLAMA SAYFASI -->
         <section id="planlamaSayfasi" class="gizli">
             <div class="takvim-bari" onclick="takvimiAcKapat()">
                 <div class="takvim-sol">Takvim</div>
@@ -50,7 +97,7 @@
             </div>
 
             <div class="takvim-alti-kutu">
-                <h3>Tüm Görevler ve Notlar</h3>
+                <h3>Bana Ait Tüm Görevler ve Notlar</h3>
                 <div id="takvimAltiGorevler">
                     <p>Henüz bir plan eklenmedi.</p>
                 </div>
@@ -58,45 +105,32 @@
         </section>
     </main>
 
-    <!-- YENİ MİMARİ: Eski adı gorevBaloncugu olan yapıyı artık Modal ekranı olarak kullanıyoruz -->
+    <!-- MERKEZİ MODAL EKRANI -->
     <div id="gorevBaloncugu" class="gizli-tamamen">
-        
-        <!-- YENİ: Ortada açılan beyaz içerik kutusu -->
         <div class="modal-icerik">
-            
-            <!-- Çarpı butonu olan şık bir başlık -->
             <div class="modal-baslik">
                 <h3 id="modalBaslikYazisi">Görevler</h3>
                 <button class="modal-kapat-btn" onclick="baloncuguKapat()">✖</button>
             </div>
-
             <div id="baloncukMevcutGorevler"></div>
             <button id="baloncukYeniGorevBtn" onclick="yeniGorevFormunuAc()" class="btn-yeni-ekle gizli">Yeni Görev Ekle</button>
-            
             <div id="baloncukFormAlani">
                 <input type="text" id="baloncukKonu" placeholder="Konu veya Ders İsmi">
                 <textarea id="baloncukIcerik" placeholder="Konunun açıklamasını giriniz..." rows="3"></textarea>
-                
                 <div class="dosya-yukleme-alani">
-                    <label for="baloncukDosya" class="dosya-yukleme-butonu">📎 PDF veya Resim Ekle</label>
-                    <input type="file" id="baloncukDosya" accept=".pdf, image/*" class="gizli-dosya-secici">
-                    
-                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:5px;">
-                        <span id="secilenDosyaIsmi" class="secilen-dosya-ismi">Henüz dosya seçilmedi.</span>
-                        <!-- YENİ: Dosya Silme İkonu (Sadece dosyası olan görevlerde çıkar) -->
-                        <span id="dosyaSilBtn" class="gizli" style="cursor:pointer; font-size:16px;" onclick="mevcutDosyayiSilmeyiIsaretle()" title="Mevcut Dosyayı Sil">🗑️</span>
-                    </div>
+                    <label for="baloncukDosya" class="dosya-yukleme-butonu">📎 Resim/PDF Ekle (Çoklu Seçebilirsiniz)</label>
+                    <input type="file" id="baloncukDosya" accept=".pdf, image/*" class="gizli-dosya-secici" multiple>
+                    <div id="secilenDosyalarListesi" class="secilen-dosyalar-alani"></div>
                 </div>
-                
                 <div class="baloncuk-butonlar">
                     <button onclick="baloncuktanKaydet()" class="btn-kaydet">Kaydet</button>
                     <button onclick="baloncuguKapat()" class="btn-iptal">İptal</button>
                 </div>
             </div>
-
         </div>
     </div>
 
+    <!-- JavaScript dosyamızı projenin en sonunda çağırıyoruz -->
     <script src="script.js"></script>
 </body>
 </html>

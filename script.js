@@ -1,34 +1,56 @@
+// Görevlerimizi saklayacağımız boş liste (Veri Yapısı)
 let gorevler = [];
+
+// Sisteme giriş yapan kullanıcının kimliğini hafızada tutuyoruz
+let aktifKullaniciId = null;
+
 let gosterilenAy = new Date().getMonth(); 
 let gosterilenYil = new Date().getFullYear();
 let duzenlenenGorevId = null;
 
-// YENİ: Dosya silme ikonuna basılıp basılmadığını hatırlayan hafıza
-let dosyaSilinecekMi = false; 
+let yeniSecilenDosyalar = []; 
+let mevcutKalanDosyalar = []; 
 
-// Eski baloncukKonumGuncelle fonksiyonunun içi boşaltıldı çünkü Modal yapısına geçtik!
-// Ancak değişken ve fonksiyon kuralları gereği yapısını koruyorum.
-function baloncukKonumGuncelle() {
-    return; // Modal kendi kendini tam ortaya hizaladığı için bu matematiğe gerek kalmadı.
-}
-
+function baloncukKonumGuncelle() { return; }
 window.addEventListener('resize', baloncukKonumGuncelle);
 
 document.getElementById('baloncukDosya').addEventListener('change', function(e) {
-    const isim = e.target.files[0] ? e.target.files[0].name : "Henüz dosya seçilmedi.";
-    document.getElementById('secilenDosyaIsmi').textContent = "Seçilen: " + isim;
-    // Yeni dosya seçildiyse silme uyarısını gizle ve sıfırla
-    dosyaSilinecekMi = false;
-    document.getElementById('dosyaSilBtn').classList.add('gizli');
-    document.getElementById('secilenDosyaIsmi').style.color = "#777";
+    const files = Array.from(e.target.files);
+    yeniSecilenDosyalar = yeniSecilenDosyalar.concat(files);
+    dosyalariListeyeCiz();
 });
 
-// YENİ: Çöp kutusuna tıklayınca çalışan fonksiyon
-function mevcutDosyayiSilmeyiIsaretle() {
-    dosyaSilinecekMi = true;
-    document.getElementById('secilenDosyaIsmi').textContent = "Bu dosya kaydedilince silinecek!";
-    document.getElementById('secilenDosyaIsmi').style.color = "red";
-    document.getElementById('dosyaSilBtn').classList.add('gizli');
+function dosyalariListeyeCiz() {
+    const liste = document.getElementById('secilenDosyalarListesi');
+    liste.innerHTML = '';
+    
+    mevcutKalanDosyalar.forEach((dosyaIsmi, index) => {
+        const badge = document.createElement('div');
+        badge.className = 'dosya-badge';
+        badge.innerHTML = `<span>💾 ${dosyaIsmi.substring(0,15)}...</span> <span class="dosya-badge-sil" onclick="mevcutDosyayiKaldir(${index})" title="Dosyayı Sil">✖</span>`;
+        liste.appendChild(badge);
+    });
+    
+    yeniSecilenDosyalar.forEach((dosyaObj, index) => {
+        const badge = document.createElement('div');
+        badge.className = 'dosya-badge';
+        badge.style.background = '#e8f5e9'; 
+        badge.style.color = '#2E7D32';
+        badge.style.borderColor = '#c5e1a5';
+        badge.innerHTML = `<span>➕ ${dosyaObj.name.substring(0,15)}...</span> <span class="dosya-badge-sil" onclick="yeniDosyayiKaldir(${index})" title="Seçimi İptal Et">✖</span>`;
+        liste.appendChild(badge);
+    });
+}
+
+function mevcutDosyayiKaldir(index) {
+    mevcutKalanDosyalar.splice(index, 1);
+    dosyalariListeyeCiz();
+}
+
+function yeniDosyayiKaldir(index) {
+    yeniSecilenDosyalar.splice(index, 1);
+    document.getElementById('baloncukDosya').value = ""; 
+    dosyalariListeyeCiz();
 }
 
 window.onload = async function() {
@@ -36,14 +58,28 @@ window.onload = async function() {
     setInterval(zamanGuncelle, 1000); 
     takvimOlustur();
     
-    try {
-        const cevap = await fetch("http://127.0.0.1:8000/gorevler");
-        if (cevap.ok) {
-            gorevler = await cevap.json(); 
-            gorevleriEkranaYazdir(); 
+    // Sayfa yenilense bile tarayıcının kalıcı hafızasında kimliğimiz duruyor mu diye bakıyoruz
+    const kayitliKullaniciId = localStorage.getItem('studyMateKullaniciId');
+    const kayitliKullaniciAdi = localStorage.getItem('studyMateKullaniciAdi');
+
+    if (kayitliKullaniciId && kayitliKullaniciAdi) {
+        // Eğer hafızada kayıtlıysak giriş ekranını atla, direkt sistemi aç!
+        aktifKullaniciId = kayitliKullaniciId;
+        document.getElementById('kullaniciKarsilama').textContent = "- Hoş geldin, " + kayitliKullaniciAdi;
+        
+        document.getElementById('anaMenu').classList.remove('gizli');
+        sayfaGoster('planlamaSayfasi'); 
+        
+        // Sadece bize ait olan görevleri veritabanından çek
+        try {
+            const gorevCevap = await fetch("http://127.0.0.1:8000/gorevler/" + aktifKullaniciId);
+            if (gorevCevap.ok) {
+                gorevler = await gorevCevap.json();
+                gorevleriEkranaYazdir();
+            }
+        } catch(hata) {
+            console.log("Sunucuya bağlanılamadı, görevler getirilemedi.");
         }
-    } catch (hata) {
-        console.log("Sunucuya bağlanılamadı, görevler getirilemedi.");
     }
 };
 
@@ -56,6 +92,79 @@ function zamanGuncelle() {
     document.getElementById('saatYazisi').textContent = saat + ":" + dakika;
 }
 
+function authEkranDegistir(hedefId) {
+    const ekranlar = ['authGiris', 'authKayit', 'authSifremiUnuttum'];
+    ekranlar.forEach(id => {
+        document.getElementById(id).classList.add('gizli');
+    });
+    document.getElementById(hedefId).classList.remove('gizli');
+}
+
+document.getElementById('kayitFormu').addEventListener('submit', async function(olay) {
+    olay.preventDefault(); 
+    const kullaniciAdi = document.getElementById('kayitKullaniciAdi').value;
+    const eposta = document.getElementById('kayitEposta').value;
+    const sifre = document.getElementById('kayitSifre').value;
+
+    const paket = new FormData();
+    paket.append("kullanici_adi", kullaniciAdi);
+    paket.append("eposta", eposta);
+    paket.append("sifre", sifre);
+
+    try {
+        const cevap = await fetch("http://127.0.0.1:8000/kayit_ol", { method: "POST", body: paket });
+        const veri = await cevap.json();
+        
+        if (cevap.ok) {
+            alert("Tebrikler! Kayıt başarılı. Lütfen giriş yapın.");
+            authEkranDegistir('authGiris'); 
+        } else {
+            alert("Hata: " + veri.detail);
+        }
+    } catch(hata) { alert("Sunucuya bağlanılamadı!"); }
+});
+
+document.getElementById('girisFormu').addEventListener('submit', async function(olay) {
+    olay.preventDefault(); 
+    const kullaniciAdi = document.getElementById('girisKullaniciAdi').value;
+    const sifre = document.getElementById('girisSifre').value;
+
+    const paket = new FormData();
+    paket.append("kullanici_adi", kullaniciAdi);
+    paket.append("sifre", sifre);
+
+    try {
+        const cevap = await fetch("http://127.0.0.1:8000/giris_yap", { method: "POST", body: paket });
+        const veri = await cevap.json();
+        
+        if (cevap.ok) {
+            aktifKullaniciId = veri.kullanici_id; 
+            
+            localStorage.setItem('studyMateKullaniciId', veri.kullanici_id);
+            localStorage.setItem('studyMateKullaniciAdi', veri.kullanici_adi);
+
+            document.getElementById('kullaniciKarsilama').textContent = "- Hoş geldin, " + veri.kullanici_adi;
+            document.getElementById('anaMenu').classList.remove('gizli');
+            sayfaGoster('planlamaSayfasi'); 
+            
+            const gorevCevap = await fetch("http://127.0.0.1:8000/gorevler/" + aktifKullaniciId);
+            if (gorevCevap.ok) {
+                gorevler = await gorevCevap.json();
+                gorevleriEkranaYazdir();
+            }
+        } else {
+            alert("Hata: " + veri.detail);
+        }
+    } catch(hata) { alert("Sunucuya bağlanılamadı!"); }
+});
+
+document.getElementById('sifreSifirlaFormu').addEventListener('submit', function(olay) {
+    olay.preventDefault();
+    alert("Şifre sıfırlama linki e-postanıza gönderildi! (Bu bir test sürümüdür)");
+    authEkranDegistir('authGiris');
+});
+
+
 function sayfaGoster(hedefSayfaId) {
     const sayfalar = ['girisSayfasi', 'planlamaSayfasi'];
     sayfalar.forEach(function(sayfaId) {
@@ -65,15 +174,17 @@ function sayfaGoster(hedefSayfaId) {
     baloncuguKapat(); 
 }
 
-document.getElementById('girisFormu').addEventListener('submit', function(olay) {
-    olay.preventDefault(); 
-    document.getElementById('anaMenu').classList.remove('gizli');
-    sayfaGoster('planlamaSayfasi'); 
-});
-
 function cikisYap() {
+    localStorage.removeItem('studyMateKullaniciId');
+    localStorage.removeItem('studyMateKullaniciAdi');
+
+    aktifKullaniciId = null; 
+    gorevler = []; 
+    gorevleriEkranaYazdir(); 
+    
     document.getElementById('anaMenu').classList.add('gizli');
     sayfaGoster('girisSayfasi');
+    authEkranDegistir('authGiris'); 
 }
 
 let seciliTarihBilgisi = ""; 
@@ -167,12 +278,10 @@ function takvimOlustur() {
     takvimiRenklendir(); 
 }
 
-// YENİ: Dışarı tıklayınca kapatma mantığı güncellendi (Modal yapısına göre)
 document.addEventListener('click', function(olay) {
     const baloncuk = document.getElementById('gorevBaloncugu');
     
     if (!baloncuk.classList.contains('gizli-tamamen')) {
-        // Eğer kullanıcı doğrudan o karanlık arka plana tıkladıysa Modal'ı kapat/kaydet
         if (olay.target.id === 'gorevBaloncugu') {
             const formAlani = document.getElementById('baloncukFormAlani');
             
@@ -210,7 +319,8 @@ function baloncukIceriginiGuncelleVeyaKapat() {
                 
                 const durumIkonu = gorev.durum ? '✅' : '❌';
                 const yaziEfecti = gorev.durum ? 'ustu-cizili' : '';
-                const dosyaEkiHTML = gorev.dosya_adresi ? `<span class="dosya-etiketi-kucuk">📎 Ek Dosya Var</span>` : '';
+                const dosyaSayisi = gorev.dosya_adresi ? gorev.dosya_adresi.split('|').length : 0;
+                const dosyaEkiHTML = dosyaSayisi > 0 ? `<span class="dosya-etiketi-kucuk">📎 ${dosyaSayisi} Ek Dosya</span>` : '';
                 
                 satir.innerHTML = `
                     <div style="display:flex; flex-direction:column;">
@@ -243,6 +353,7 @@ function baloncukAc(olay, gun, ay, yil) {
     document.getElementById('modalBaslikYazisi').textContent = seciliTarihBilgisi + " Planları";
 
     baloncuk.classList.remove('gizli-tamamen');
+    document.body.style.overflow = 'hidden'; 
 
     const oGunkuGorevler = gorevler.filter(g => g.gunNo === gun && g.ayNo === ay && g.yilNo === yil);
     
@@ -252,13 +363,14 @@ function baloncukAc(olay, gun, ay, yil) {
 
     listeAlani.innerHTML = ''; 
     duzenlenenGorevId = null; 
-    dosyaSilinecekMi = false; 
+    
     document.getElementById('baloncukKonu').value = "";
     document.getElementById('baloncukIcerik').value = "";
     document.getElementById('baloncukDosya').value = ""; 
-    document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi."; 
-    document.getElementById('secilenDosyaIsmi').style.color = "#777";
-    document.getElementById('dosyaSilBtn').classList.add('gizli');
+    
+    yeniSecilenDosyalar = [];
+    mevcutKalanDosyalar = [];
+    dosyalariListeyeCiz();
 
     if (oGunkuGorevler.length > 0) {
         formAlani.classList.add('gizli');
@@ -274,10 +386,11 @@ function yeniGorevFormunuAc() {
     document.getElementById('baloncukKonu').value = "";
     document.getElementById('baloncukIcerik').value = "";
     document.getElementById('baloncukDosya').value = ""; 
-    document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
-    document.getElementById('secilenDosyaIsmi').style.color = "#777";
-    document.getElementById('dosyaSilBtn').classList.add('gizli');
-    dosyaSilinecekMi = false;
+    
+    yeniSecilenDosyalar = [];
+    mevcutKalanDosyalar = [];
+    dosyalariListeyeCiz();
+
     duzenlenenGorevId = null; 
     document.getElementById('baloncukFormAlani').classList.remove('gizli');
     document.getElementById('baloncukYeniGorevBtn').classList.add('gizli');
@@ -289,16 +402,10 @@ function goreviDuzenle(id) {
         document.getElementById('baloncukKonu').value = gorev.baslik;
         document.getElementById('baloncukIcerik').value = gorev.aciklama;
         document.getElementById('baloncukDosya').value = "";
-        document.getElementById('secilenDosyaIsmi').style.color = "#777";
-        dosyaSilinecekMi = false;
         
-        if (gorev.dosya_adresi) {
-            document.getElementById('secilenDosyaIsmi').textContent = "Mevcut Dosya: " + gorev.dosya_adresi;
-            document.getElementById('dosyaSilBtn').classList.remove('gizli'); // Sil ikonunu göster
-        } else {
-            document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
-            document.getElementById('dosyaSilBtn').classList.add('gizli');
-        }
+        yeniSecilenDosyalar = [];
+        mevcutKalanDosyalar = gorev.dosya_adresi ? gorev.dosya_adresi.split('|') : [];
+        dosyalariListeyeCiz();
         
         duzenlenenGorevId = id; 
         document.getElementById('baloncukFormAlani').classList.remove('gizli');
@@ -332,20 +439,15 @@ function listedenGoreviDuzenle(id) {
 
         const baloncuk = document.getElementById('gorevBaloncugu');
         baloncuk.classList.remove('gizli-tamamen');
+        document.body.style.overflow = 'hidden';
 
         document.getElementById('baloncukKonu').value = gorev.baslik;
         document.getElementById('baloncukIcerik').value = gorev.aciklama;
         document.getElementById('baloncukDosya').value = ""; 
-        document.getElementById('secilenDosyaIsmi').style.color = "#777";
-        dosyaSilinecekMi = false;
-
-        if (gorev.dosya_adresi) {
-            document.getElementById('secilenDosyaIsmi').textContent = "Mevcut Dosya: " + gorev.dosya_adresi;
-            document.getElementById('dosyaSilBtn').classList.remove('gizli');
-        } else {
-            document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
-            document.getElementById('dosyaSilBtn').classList.add('gizli');
-        }
+        
+        yeniSecilenDosyalar = [];
+        mevcutKalanDosyalar = gorev.dosya_adresi ? gorev.dosya_adresi.split('|') : [];
+        dosyalariListeyeCiz();
         
         duzenlenenGorevId = id; 
         document.getElementById('baloncukMevcutGorevler').innerHTML = ''; 
@@ -356,12 +458,16 @@ function listedenGoreviDuzenle(id) {
 
 function baloncuguKapat() {
     document.getElementById('gorevBaloncugu').classList.add('gizli-tamamen');
+    document.body.style.overflow = ''; 
+
     document.getElementById('baloncukKonu').value = "";
     document.getElementById('baloncukIcerik').value = "";
     document.getElementById('baloncukDosya').value = "";
-    document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
-    document.getElementById('dosyaSilBtn').classList.add('gizli');
-    dosyaSilinecekMi = false;
+    
+    yeniSecilenDosyalar = [];
+    mevcutKalanDosyalar = [];
+    dosyalariListeyeCiz();
+
     duzenlenenGorevId = null;
 }
 
@@ -379,9 +485,6 @@ async function goreviSil(id) {
 async function baloncuktanKaydet() {
     const konu = document.getElementById('baloncukKonu').value;
     const icerik = document.getElementById('baloncukIcerik').value;
-    
-    const dosyaKutusu = document.getElementById('baloncukDosya');
-    const secilenDosya = dosyaKutusu.files[0];
 
     if (konu === "" || icerik === "") {
         alert("Lütfen Konu ve Açıklama alanlarını doldurun.");
@@ -397,12 +500,11 @@ async function baloncuktanKaydet() {
             paket.append("aciklama", icerik);
             paket.append("durum", varOlanGorev.durum);
             
-            // YENİ EKLENDİ: Dosyayı silme uyarısı Python'a gidiyor
-            paket.append("dosya_sil", dosyaSilinecekMi);
+            paket.append("kalan_dosyalar", mevcutKalanDosyalar.join("|"));
             
-            if (secilenDosya) {
-                paket.append("dosya", secilenDosya);
-            }
+            yeniSecilenDosyalar.forEach(dosya => {
+                paket.append("dosyalar", dosya);
+            });
 
             try {
                 const cevap = await fetch("http://127.0.0.1:8000/gorev_guncelle/" + duzenlenenGorevId, {
@@ -414,16 +516,7 @@ async function baloncuktanKaydet() {
                     const sonuc = await cevap.json();
                     varOlanGorev.baslik = konu;
                     varOlanGorev.aciklama = icerik;
-                    
-                    if (dosyaSilinecekMi) {
-                        varOlanGorev.dosya_adresi = null;
-                        varOlanGorev.dosya_tipi = null;
-                    }
-                    
-                    if (secilenDosya) {
-                        varOlanGorev.dosya_adresi = sonuc.dosya_adresi;
-                        varOlanGorev.dosya_tipi = sonuc.dosya_tipi;
-                    }
+                    varOlanGorev.dosya_adresi = sonuc.dosya_adresi; 
                 }
             } catch (hata) {
                 console.error("Güncelleme hatası", hata);
@@ -435,6 +528,7 @@ async function baloncuktanKaydet() {
     } 
     else {
         const kargoPaketi = new FormData();
+        kargoPaketi.append("kullanici_id", aktifKullaniciId); 
         kargoPaketi.append("baslik", konu);
         kargoPaketi.append("aciklama", icerik);
         kargoPaketi.append("tarih", seciliTarihBilgisi);
@@ -442,9 +536,9 @@ async function baloncuktanKaydet() {
         kargoPaketi.append("ayNo", seciliAyBilgisi);
         kargoPaketi.append("yilNo", seciliYilBilgisi);
         
-        if (secilenDosya) {
-            kargoPaketi.append("dosya", secilenDosya);
-        }
+        yeniSecilenDosyalar.forEach(dosya => {
+            kargoPaketi.append("dosyalar", dosya);
+        });
 
         try {
             const cevap = await fetch("http://127.0.0.1:8000/gorev_ekle", {
@@ -464,8 +558,7 @@ async function baloncuktanKaydet() {
                     ayNo: seciliAyBilgisi,     
                     yilNo: seciliYilBilgisi,   
                     durum: false,
-                    dosya_adresi: sonuc.dosya_adresi, 
-                    dosya_tipi: sonuc.dosya_tipi 
+                    dosya_adresi: sonuc.dosya_adresi
                 };
                 
                 gorevler.push(yeniGorev); 
@@ -481,16 +574,18 @@ async function baloncuktanKaydet() {
 
 function takvimiRenklendir() {
     const simdi = new Date();
+    // Saati sıfırlayarak sadece gün bazında hesaplama yapıyoruz
     const bugunTarihi = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate());
 
     const tumKutular = document.querySelectorAll('.takvim-gunu');
     tumKutular.forEach(function(kutu) {
-        kutu.classList.remove('gun-yesil', 'gun-sari', 'gun-kirmizi');
+        // Tüm renk sınıflarını temizle
+        kutu.classList.remove('gun-yesil', 'gun-sari', 'gun-kirmizi', 'gecmis-gorev-cercevesi'); 
         kutu.removeAttribute('data-konu'); 
     });
 
     gorevler.forEach(function(gorev) {
-        if (!gorev.durum) {
+        if (!gorev.durum) { 
             const kutu = document.getElementById('takvim-kutu-' + gorev.yilNo + '-' + gorev.ayNo + '-' + gorev.gunNo);
             
             if (kutu) {
@@ -505,24 +600,40 @@ function takvimiRenklendir() {
                 const zamanFarki = gorevTarihi.getTime() - bugunTarihi.getTime();
                 const kalanGunFarki = Math.ceil(zamanFarki / (1000 * 3600 * 24));
 
-                if (kalanGunFarki >= 7) {
-                    if (!kutu.classList.contains('gun-kirmizi') && !kutu.classList.contains('gun-sari')) {
-                        kutu.classList.add('gun-yesil');
-                    }
-                } 
-                else if (kalanGunFarki <= 5 && kalanGunFarki > 3) {
-                    if (!kutu.classList.contains('gun-kirmizi')) {
+                // YENİ DÜZENLEME: Kullanıcının isteği üzerine GEÇMİŞ günlerin içi kırmızı OLMAYACAK, sadece siyah çerçeve olacak
+                if (kalanGunFarki < 0) {
+                    // 1. Durum: Gün geçmişte kalmış (Sadece siyah çerçeve eklenir)
+                    kutu.classList.add('gecmis-gorev-cercevesi');
+                    kutu.classList.remove('gun-yesil', 'gun-sari', 'gun-kirmizi'); 
+                }
+                else if (kalanGunFarki >= 0 && kalanGunFarki <= 3) {
+                    // 2. Durum: Bugün veya son 3 gün kalmış (Kırmızı Uyarı)
+                    kutu.classList.add('gun-kirmizi');
+                    kutu.classList.remove('gun-yesil', 'gun-sari', 'gecmis-gorev-cercevesi'); 
+                }
+                else if (kalanGunFarki > 3 && kalanGunFarki <= 5) {
+                    // 3. Durum: 3 ile 5 gün arası kalmış (Sarı Uyarı)
+                    if (!kutu.classList.contains('gun-kirmizi') && !kutu.classList.contains('gecmis-gorev-cercevesi')) {
                         kutu.classList.add('gun-sari');
                         kutu.classList.remove('gun-yesil'); 
                     }
                 } 
-                else if (kalanGunFarki <= 3) {
-                    kutu.classList.add('gun-kirmizi');
-                    kutu.classList.remove('gun-yesil', 'gun-sari'); 
+                else if (kalanGunFarki > 5) {
+                    // 4. Durum: 5 günden daha fazla zaman var (Yeşil Uyarı)
+                    if (!kutu.classList.contains('gun-kirmizi') && !kutu.classList.contains('gun-sari') && !kutu.classList.contains('gecmis-gorev-cercevesi')) {
+                        kutu.classList.add('gun-yesil');
+                    }
                 }
             }
         }
     });
+}
+
+function dosyalariGosterGizle(id) {
+    const alan = document.getElementById('dosyalar-' + id);
+    if (alan) {
+        alan.classList.toggle('gizli');
+    }
 }
 
 function gorevleriEkranaYazdir() {
@@ -546,14 +657,27 @@ function gorevleriEkranaYazdir() {
         const butonMetni = gorev.durum ? 'İptal Et (Geri Al)' : 'Tamamlandı İşaretle';
 
         let dosyaEkiHTML = "";
+        
         if (gorev.dosya_adresi) {
-            const dosyaUrl = "http://127.0.0.1:8000/dosyalar/" + encodeURIComponent(gorev.dosya_adresi);
+            const dosyalarArray = gorev.dosya_adresi.split('|');
+            const dosyaSayisi = dosyalarArray.length;
             
-            if (gorev.dosya_tipi === "resim") {
-                dosyaEkiHTML = `<div><a href="${dosyaUrl}" target="_blank"><img src="${dosyaUrl}" class="gorsel-onizleme"></a></div>`;
-            } else {
-                dosyaEkiHTML = `<div><a href="${dosyaUrl}" target="_blank" class="pdf-butonu">📄 PDF Dosyasını Görüntüle</a></div>`;
-            }
+            dosyaEkiHTML += `<button class="dosya-goster-gizle-btn" onclick="dosyalariGosterGizle(${gorev.id})">📎 ${dosyaSayisi} Ek Dosyayı Göster/Gizle 🔽</button>`;
+            dosyaEkiHTML += `<div id="dosyalar-${gorev.id}" class="gorev-dosyalari-grid gizli">`;
+            
+            dosyalarArray.forEach(dosyaIsmi => {
+                const dosyaUrl = "http://127.0.0.1:8000/dosyalar/" + encodeURIComponent(dosyaIsmi);
+                const kucukHarfliIsim = dosyaIsmi.toLowerCase();
+                const isPdf = kucukHarfliIsim.endsWith(".pdf");
+                
+                if (!isPdf) {
+                    dosyaEkiHTML += `<div><a href="${dosyaUrl}" target="_blank"><img src="${dosyaUrl}" class="gorsel-onizleme"></a></div>`;
+                } else {
+                    const kisaIsim = dosyaIsmi.length > 15 ? dosyaIsmi.substring(0,15) + "..." : dosyaIsmi;
+                    dosyaEkiHTML += `<div><a href="${dosyaUrl}" target="_blank" class="pdf-butonu" title="${dosyaIsmi}">📄 ${kisaIsim}</a></div>`;
+                }
+            });
+            dosyaEkiHTML += `</div>`;
         }
 
         const gorevHTML = `
@@ -587,6 +711,10 @@ async function gorevDurumuDegistir(id) {
         paket.append("baslik", gorev.baslik);
         paket.append("aciklama", gorev.aciklama);
         paket.append("durum", gorev.durum);
+        
+        if (gorev.dosya_adresi) {
+            paket.append("kalan_dosyalar", gorev.dosya_adresi);
+        }
 
         try {
             await fetch("http://127.0.0.1:8000/gorev_guncelle/" + id, {
