@@ -82,18 +82,19 @@ pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
 2. Live Server eklentisi ile (veya dosyaya çift tıklayarak) tarayıcıda çalıştırın.
 3. Çıkan ekranda yeni bir hesap oluşturup sistemi kullanmaya başlayabilirsiniz!
 
-
+```text
 StudyMate/
 │
 ├── index.html          # Uygulama ana ekranı ve Modal yapıları
 ├── style.css           # Modern UX/UI tasarımları ve Grid sistemleri
 ├── script.js           # Frontend mantığı, Fetch API istekleri ve DOM manipülasyonu
 │
-└── arka_plan/          # Backend (FastAPI & Veritabanı) Dosyaları
-    ├── main.py         # API Rotaları (CRUD işlemleri, Dosya okuma/yazma, Auth)
-    ├── database.py     # PostgreSQL bağlantısı ve Tablo şemaları
-    ├── docker-compose.yml # Veritabanı kurulum reçetesi
-    └── yuklenen_dosyalar/ # Kullanıcıların yüklediği resim ve PDF'lerin fiziksel deposu
+└── arka_plan/          # Backend (FastAPI & Veritabanı)
+    ├── main.py         # API Rotaları (CRUD, Dosya işlemleri, Auth)
+    ├── database.py     # PostgreSQL bağlantısı ve ORM modelleri
+    ├── docker-compose.yml # PostgreSQL Docker yapılandırması
+    └── yuklenen_dosyalar/ # Kullanıcı yüklemeleri (PDF / Görsel)
+```
 
 
 
