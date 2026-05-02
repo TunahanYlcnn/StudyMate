@@ -53,7 +53,7 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 ### 3. Arka Planı (API) Çalıştırma
 
 1. Yine arka\_plan klasörü içindeki terminalde şu komutla gerekli Python eklentilerini kurun:
-     ```bash
+   ```bash
   pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
   ```
 
@@ -61,17 +61,17 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 
 Arka plan servisleri PostgreSQL veritabanına ihtiyaç duyar. Veritabanı Docker üzerinden çalıştırılmaktadır.
 
-Proje dizininde arka_plan (veya backend) klasörüne girin.
+Proje dizininde backend klasörüne girin.
 Bu klasörde bir terminal açın.
 PostgreSQL veritabanını başlatmak için aşağıdaki komutu çalıştırın:
 ```bash
 docker-compose up -d
-  ```
+```
 
 Bu komut, veritabanını arka planda (-d) çalıştırır.
 
 3. Kurulum bittikten sonra API sunucumuzu başlatın:
- ```bash
+```bash
 pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
 ```
 
