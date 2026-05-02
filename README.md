@@ -53,9 +53,9 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 ### 3. Arka Planı (API) Çalıştırma
 
 1. Yine arka\_plan klasörü içindeki terminalde şu komutla gerekli Python eklentilerini kurun:
-   ```bash
-  pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
-  ```
+```bash
+pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
+```
 
 2. Veritabanını Ayağa Kaldırma (Docker)
 
