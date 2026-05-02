@@ -32,32 +32,21 @@ StudyMate, öğrencilerin ve profesyonellerin günlük görevlerini, ders notlar
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma (Sıfırdan Başlangıç)
+## 🚀 Kurulum ve Çalıştırma (Sıfır Kurulum Yöntemi)
 
-Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları sırasıyla izleyin.
+Projeyi Docker sayesinde kütüphane kurulumlarıyla uğraşmadan, saniyeler içinde çalıştırabilirsiniz.
 
 ### 1. Gereksinimler
-* Bilgisayarınızda **Python** kurulu olmalıdır.
-* Bilgisayarınızda **Docker Desktop** kurulu ve çalışır durumda olmalıdır.
+Bilgisayarınızda Docker Desktop kurulu ve çalışır durumda olmalıdır.
 
-### 2. Veritabanını Ayağa Kaldırma (Docker)
-Öncelikle veritabanımızı başlatmalıyız.
-1. Proje klasöründeki `arka_plan` (veya `backend`) dizinine girin.
-2. Bu klasörde bir terminal (CMD) açın.
-3. Aşağıdaki komutu çalıştırarak PostgreSQL veritabanını oluşturun:
-   ```bash
-   docker-compose up -d
-   ```
+### 2. Sistemi Tek Komutla Başlatma
+Projenin kütüphanelerini, veritabanını ve sunucusunu tek seferde hazır hale getirmek için:
 
-### 3. Arka Planı (API) Çalıştırma
+1. Proje ana klasöründe bir terminal (CMD/PowerShell) açın.
 
-1. Yine arka\_plan klasörü içindeki terminalde şu komutla gerekli Python eklentilerini kurun:
+2. Aşağıdaki komutu çalıştırın:
 ```bash
-pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
-```
-2. Kurulum bittikten sonra API sunucumuzu başlatın:
-```bash
-uvicorn main:app --reload
+docker-compose up --build
 ```
 
 ### 4. Ön Yüzü Çalıştırma
