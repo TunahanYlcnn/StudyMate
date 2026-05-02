@@ -46,20 +46,20 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 2. Bu klasörde bir terminal (CMD) açın.
 3. Aşağıdaki komutu çalıştırarak PostgreSQL veritabanını oluşturun:
    ```bash
-   docker-compose up -d
+   docker-compose up -d```
 
 
 ### 3. Arka Planı (API) Çalıştırma
 
 1. Yine arka\_plan klasörü içindeki terminalde şu komutla gerekli Python eklentilerini kurun:
      ```bash
-  pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
+  pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart```
 
 
 
 3. Kurulum bittikten sonra API sunucumuzu başlatın:
-  ```bash
-  uvicorn main:app --reload
+ ```bash
+pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart```
 
 
 ### 4. Ön Yüzü Çalıştırma
