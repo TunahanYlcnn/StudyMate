@@ -55,7 +55,16 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
      ```bash
   pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart```
 
+2. Veritabanını Ayağa Kaldırma (Docker)
 
+Arka plan servisleri PostgreSQL veritabanına ihtiyaç duyar. Veritabanı Docker üzerinden çalıştırılmaktadır.
+
+Proje dizininde arka_plan (veya backend) klasörüne girin.
+Bu klasörde bir terminal açın.
+PostgreSQL veritabanını başlatmak için aşağıdaki komutu çalıştırın:
+docker-compose up -d
+
+Bu komut, veritabanını arka planda (-d) çalıştırır.
 
 3. Kurulum bittikten sonra API sunucumuzu başlatın:
  ```bash
@@ -80,26 +89,6 @@ StudyMate/
     ├── database.py     # PostgreSQL bağlantısı ve Tablo şemaları
     ├── docker-compose.yml # Veritabanı kurulum reçetesi
     └── yuklenen_dosyalar/ # Kullanıcıların yüklediği resim ve PDF'lerin fiziksel deposu
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
