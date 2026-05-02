@@ -1,0 +1,73 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Secrets
+secrets/
+*.pem
+*.key
+
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Docker runtime
+**/data/
+**/volumes/
+
+# Build cache
+**/.docker/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+.venv/
+env/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Frontend build
+dist/
+build/
+.out/
+.next/
+.cache/
+
+# Database
+*.sqlite
+*.db
+*.dump
+
+# Logs
+logs/
+*.log
+
+# Tests
+coverage/
+.nyc_output/
+pytest_cache/
+
+# Temporary files
+tmp/
+temp/

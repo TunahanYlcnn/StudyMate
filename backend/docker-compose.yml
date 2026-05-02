@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  veritabani:
+    image: postgres:15
+    container_name: studymate_db
+    restart: always
+    environment:
+      - POSTGRES_USER=studymate_admin
+      - POSTGRES_PASSWORD=gizli_sifre_123
+      - POSTGRES_DB=studymate_veritabani
+    ports:
+      - "5432:5432"
+    volumes:
+      - veritabani_hafizasi:/var/lib/postgresql/data
+
+volumes:
+  veritabani_hafizasi:

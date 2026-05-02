@@ -1,57 +1,50 @@
-// Görevlerimizi saklayacağımız boş liste (Veri Yapısı)
 let gorevler = [];
-
-let gosterilenAy = new Date().getMonth();
+let gosterilenAy = new Date().getMonth(); 
 let gosterilenYil = new Date().getFullYear();
-
-// Hangi görevi düzenlediğimizi bilgisayarın unutmaması için hafıza
 let duzenlenenGorevId = null;
 
-// ==========================================
-// YENİ: BALONCUĞUN KONUMUNU HESAPLAYAN FONKSİYON
-// (Bunu ayırdık ki hem tıklayınca hem de ekran boyutu değişince çalışsın)
-// ==========================================
+// YENİ: Dosya silme ikonuna basılıp basılmadığını hatırlayan hafıza
+let dosyaSilinecekMi = false; 
+
+// Eski baloncukKonumGuncelle fonksiyonunun içi boşaltıldı çünkü Modal yapısına geçtik!
+// Ancak değişken ve fonksiyon kuralları gereği yapısını koruyorum.
 function baloncukKonumGuncelle() {
-    const baloncuk = document.getElementById('gorevBaloncugu');
-
-    // Eğer baloncuk kapalıysa hiç boşuna yorulup hesaplama yapma
-    if (baloncuk.classList.contains('gizli-tamamen')) return;
-
-    // Hangi günde olduğumuzu hafızadan (değişkenlerden) bulup, o kutunun ID'sini oluşturuyoruz
-    const kutuId = 'takvim-kutu-' + seciliYilBilgisi + '-' + seciliAyBilgisi + '-' + seciliGunNumarasi;
-    const tiklananGun = document.getElementById(kutuId);
-
-    // Eğer o kutuyu ekranda bulduysak yerini hesapla
-    if (tiklananGun) {
-        const kordinat = tiklananGun.getBoundingClientRect();
-
-        let hesaplananSol = kordinat.left + window.scrollX + (kordinat.width / 2);
-        const baloncukGenislikYarisi = 150; // CSS'te width:300px verdik, yarısı 150
-        const ekranGenisligi = window.innerWidth;
-
-        // Baloncuk ekranın solundan taşıyorsa, içeri it
-        if (hesaplananSol - baloncukGenislikYarisi < 10) {
-            hesaplananSol = baloncukGenislikYarisi + 10;
-        }
-        // Baloncuk ekranın sağından taşıyorsa, içeri it
-        else if (hesaplananSol + baloncukGenislikYarisi > ekranGenisligi - 10) {
-            hesaplananSol = ekranGenisligi - baloncukGenislikYarisi - 10;
-        }
-
-        // Hesaplanan o mükemmel konumu CSS'e yapıştır
-        baloncuk.style.left = hesaplananSol + 'px';
-        baloncuk.style.top = (kordinat.top + window.scrollY - 10) + 'px';
-    }
+    return; // Modal kendi kendini tam ortaya hizaladığı için bu matematiğe gerek kalmadı.
 }
 
-// SAYFA BOYUTU DEĞİŞTİĞİNDE (Resize) baloncuğun yerini otomatik güncelle
 window.addEventListener('resize', baloncukKonumGuncelle);
 
+document.getElementById('baloncukDosya').addEventListener('change', function(e) {
+    const isim = e.target.files[0] ? e.target.files[0].name : "Henüz dosya seçilmedi.";
+    document.getElementById('secilenDosyaIsmi').textContent = "Seçilen: " + isim;
+    // Yeni dosya seçildiyse silme uyarısını gizle ve sıfırla
+    dosyaSilinecekMi = false;
+    document.getElementById('dosyaSilBtn').classList.add('gizli');
+    document.getElementById('secilenDosyaIsmi').style.color = "#777";
+});
 
-window.onload = function () {
+// YENİ: Çöp kutusuna tıklayınca çalışan fonksiyon
+function mevcutDosyayiSilmeyiIsaretle() {
+    dosyaSilinecekMi = true;
+    document.getElementById('secilenDosyaIsmi').textContent = "Bu dosya kaydedilince silinecek!";
+    document.getElementById('secilenDosyaIsmi').style.color = "red";
+    document.getElementById('dosyaSilBtn').classList.add('gizli');
+}
+
+window.onload = async function() {
     zamanGuncelle();
-    setInterval(zamanGuncelle, 1000);
+    setInterval(zamanGuncelle, 1000); 
     takvimOlustur();
+    
+    try {
+        const cevap = await fetch("http://127.0.0.1:8000/gorevler");
+        if (cevap.ok) {
+            gorevler = await cevap.json(); 
+            gorevleriEkranaYazdir(); 
+        }
+    } catch (hata) {
+        console.log("Sunucuya bağlanılamadı, görevler getirilemedi.");
+    }
 };
 
 function zamanGuncelle() {
@@ -65,17 +58,17 @@ function zamanGuncelle() {
 
 function sayfaGoster(hedefSayfaId) {
     const sayfalar = ['girisSayfasi', 'planlamaSayfasi'];
-    sayfalar.forEach(function (sayfaId) {
+    sayfalar.forEach(function(sayfaId) {
         document.getElementById(sayfaId).classList.add('gizli');
     });
     document.getElementById(hedefSayfaId).classList.remove('gizli');
-    baloncuguKapat();
+    baloncuguKapat(); 
 }
 
-document.getElementById('girisFormu').addEventListener('submit', function (olay) {
-    olay.preventDefault();
+document.getElementById('girisFormu').addEventListener('submit', function(olay) {
+    olay.preventDefault(); 
     document.getElementById('anaMenu').classList.remove('gizli');
-    sayfaGoster('planlamaSayfasi');
+    sayfaGoster('planlamaSayfasi'); 
 });
 
 function cikisYap() {
@@ -83,11 +76,8 @@ function cikisYap() {
     sayfaGoster('girisSayfasi');
 }
 
-// ==========================================
-// TAKVİM VE AY DEĞİŞTİRME SİSTEMİ
-// ==========================================
-let seciliTarihBilgisi = "";
-let seciliGunNumarasi = 0;
+let seciliTarihBilgisi = ""; 
+let seciliGunNumarasi = 0;   
 let seciliAyBilgisi = 0;
 let seciliYilBilgisi = 0;
 
@@ -99,7 +89,7 @@ function takvimiAcKapat() {
 }
 
 function ayDegistir(yon) {
-    gosterilenAy += yon;
+    gosterilenAy += yon; 
     if (gosterilenAy > 11) {
         gosterilenAy = 0;
         gosterilenYil++;
@@ -108,18 +98,18 @@ function ayDegistir(yon) {
         gosterilenYil--;
     }
     takvimOlustur();
-    baloncuguKapat();
+    baloncuguKapat(); 
 }
 
 function takvimOlustur() {
     const izgara = document.getElementById('takvimIzgarasi');
     izgara.innerHTML = '';
-
+    
     const simdi = new Date();
     const gercekBugununGunu = simdi.getDate();
     const gercekBugununAyi = simdi.getMonth();
     const gercekBugununYili = simdi.getFullYear();
-
+    
     const aydakiGunSayisi = new Date(gosterilenYil, gosterilenAy + 1, 0).getDate();
     let ilkGun = new Date(gosterilenYil, gosterilenAy, 1).getDay();
     ilkGun = ilkGun === 0 ? 6 : ilkGun - 1;
@@ -127,7 +117,7 @@ function takvimOlustur() {
     let oncekiAy = gosterilenAy - 1;
     let oncekiYil = gosterilenYil;
     if (oncekiAy < 0) { oncekiAy = 11; oncekiYil--; }
-
+    
     let sonrakiAy = gosterilenAy + 1;
     let sonrakiYil = gosterilenYil;
     if (sonrakiAy > 11) { sonrakiAy = 0; sonrakiYil++; }
@@ -135,7 +125,7 @@ function takvimOlustur() {
     const oncekiAyGunSayisi = new Date(gosterilenYil, gosterilenAy, 0).getDate();
     const ayIsimleri = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     document.getElementById('gosterilenAyYazisi').textContent = ayIsimleri[gosterilenAy] + " " + gosterilenYil;
-
+    
     for (let i = ilkGun - 1; i >= 0; i--) {
         let pGun = oncekiAyGunSayisi - i;
         const gunKutusu = document.createElement('div');
@@ -145,24 +135,24 @@ function takvimOlustur() {
         if (pGun === gercekBugununGunu && oncekiAy === gercekBugununAyi && oncekiYil === gercekBugununYili) {
             gunKutusu.classList.add('bugun-cercevesi');
         }
-        gunKutusu.onclick = function (olay) { baloncukAc(olay, pGun, oncekiAy, oncekiYil); };
+        gunKutusu.onclick = function(olay) { baloncukAc(olay, pGun, oncekiAy, oncekiYil); };
         izgara.appendChild(gunKutusu);
     }
 
-    for (let gun = 1; gun <= aydakiGunSayisi; gun++) {
+    for(let gun = 1; gun <= aydakiGunSayisi; gun++) {
         const gunKutusu = document.createElement('div');
         gunKutusu.className = 'takvim-gunu';
-        gunKutusu.id = 'takvim-kutu-' + gosterilenYil + '-' + gosterilenAy + '-' + gun;
+        gunKutusu.id = 'takvim-kutu-' + gosterilenYil + '-' + gosterilenAy + '-' + gun; 
         gunKutusu.textContent = gun;
         if (gun === gercekBugununGunu && gosterilenAy === gercekBugununAyi && gosterilenYil === gercekBugununYili) {
             gunKutusu.classList.add('bugun-cercevesi');
         }
-        gunKutusu.onclick = function (olay) { baloncukAc(olay, gun, gosterilenAy, gosterilenYil); };
+        gunKutusu.onclick = function(olay) { baloncukAc(olay, gun, gosterilenAy, gosterilenYil); };
         izgara.appendChild(gunKutusu);
     }
 
     const toplamHucre = ilkGun + aydakiGunSayisi;
-    const kalanHucre = (7 - (toplamHucre % 7)) % 7;
+    const kalanHucre = (7 - (toplamHucre % 7)) % 7; 
     for (let i = 1; i <= kalanHucre; i++) {
         const gunKutusu = document.createElement('div');
         gunKutusu.className = 'takvim-gunu pasif-gun';
@@ -171,27 +161,24 @@ function takvimOlustur() {
         if (i === gercekBugununGunu && sonrakiAy === gercekBugununAyi && sonrakiYil === gercekBugununYili) {
             gunKutusu.classList.add('bugun-cercevesi');
         }
-        gunKutusu.onclick = function (olay) { baloncukAc(olay, i, sonrakiAy, sonrakiYil); };
+        gunKutusu.onclick = function(olay) { baloncukAc(olay, i, sonrakiAy, sonrakiYil); };
         izgara.appendChild(gunKutusu);
     }
-    takvimiRenklendir();
+    takvimiRenklendir(); 
 }
 
-// ==========================================
-// DIŞARI TIKLANINCA OTOMATİK KAYDETME VE KAPATMA
-// ==========================================
-document.addEventListener('click', function (olay) {
+// YENİ: Dışarı tıklayınca kapatma mantığı güncellendi (Modal yapısına göre)
+document.addEventListener('click', function(olay) {
     const baloncuk = document.getElementById('gorevBaloncugu');
-
+    
     if (!baloncuk.classList.contains('gizli-tamamen')) {
-        if (!baloncuk.contains(olay.target) && !olay.target.classList.contains('takvim-gunu') && !olay.target.classList.contains('pasif-gun')) {
-
+        // Eğer kullanıcı doğrudan o karanlık arka plana tıkladıysa Modal'ı kapat/kaydet
+        if (olay.target.id === 'gorevBaloncugu') {
             const formAlani = document.getElementById('baloncukFormAlani');
-
+            
             if (!formAlani.classList.contains('gizli')) {
                 const konu = document.getElementById('baloncukKonu').value;
                 const icerik = document.getElementById('baloncukIcerik').value;
-
                 if (konu.trim() !== "" && icerik.trim() !== "") {
                     baloncuktanKaydet();
                 } else {
@@ -204,10 +191,6 @@ document.addEventListener('click', function (olay) {
     }
 });
 
-// ==========================================
-// DİNAMİK BALONCUK, SİLME VE DÜZENLEME SİSTEMİ
-// ==========================================
-
 function baloncukIceriginiGuncelleVeyaKapat() {
     const baloncuk = document.getElementById('gorevBaloncugu');
     if (baloncuk.classList.contains('gizli-tamamen')) return;
@@ -219,17 +202,21 @@ function baloncukIceriginiGuncelleVeyaKapat() {
 
     if (!yeniGorevBtn.classList.contains('gizli')) {
         listeAlani.innerHTML = '';
-
+        
         if (oGunkuGorevler.length > 0) {
             oGunkuGorevler.forEach(gorev => {
                 const satir = document.createElement('div');
                 satir.className = 'baloncuk-gorev-satiri';
-
+                
                 const durumIkonu = gorev.durum ? '✅' : '❌';
                 const yaziEfecti = gorev.durum ? 'ustu-cizili' : '';
-
+                const dosyaEkiHTML = gorev.dosya_adresi ? `<span class="dosya-etiketi-kucuk">📎 Ek Dosya Var</span>` : '';
+                
                 satir.innerHTML = `
-                    <span class="${yaziEfecti}">${gorev.baslik}</span>
+                    <div style="display:flex; flex-direction:column;">
+                        <span class="${yaziEfecti}">${gorev.baslik}</span>
+                        ${dosyaEkiHTML}
+                    </div>
                     <div class="ikon-grubu">
                         <span onclick="gorevDurumuDegistir(${gorev.id})" title="Durumu Değiştir">${durumIkonu}</span>
                         <span onclick="goreviDuzenle(${gorev.id})" title="Düzenle">✏️</span>
@@ -246,30 +233,32 @@ function baloncukIceriginiGuncelleVeyaKapat() {
 
 function baloncukAc(olay, gun, ay, yil) {
     const baloncuk = document.getElementById('gorevBaloncugu');
-
-    // Değişkenleri hafızaya aldık
-    seciliGunNumarasi = gun;
-    seciliAyBilgisi = ay;
-    seciliYilBilgisi = yil;
+    
+    seciliGunNumarasi = gun; 
+    seciliAyBilgisi = ay; 
+    seciliYilBilgisi = yil; 
     const ayIsimleri = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-    seciliTarihBilgisi = gun + " " + ayIsimleri[ay] + " " + yil;
+    seciliTarihBilgisi = gun + " " + ayIsimleri[ay] + " " + yil; 
+    
+    document.getElementById('modalBaslikYazisi').textContent = seciliTarihBilgisi + " Planları";
 
-    // Baloncuğu önce bir görünür yapıyoruz (gizli class'ını silerek)
     baloncuk.classList.remove('gizli-tamamen');
 
-    // YENİ: Koordinatları ayarlasın diye az önce yazdığımız akıllı fonksiyonu çağırıyoruz
-    baloncukKonumGuncelle();
-
     const oGunkuGorevler = gorevler.filter(g => g.gunNo === gun && g.ayNo === ay && g.yilNo === yil);
-
+    
     const listeAlani = document.getElementById('baloncukMevcutGorevler');
     const yeniGorevBtn = document.getElementById('baloncukYeniGorevBtn');
     const formAlani = document.getElementById('baloncukFormAlani');
 
-    listeAlani.innerHTML = '';
-    duzenlenenGorevId = null;
+    listeAlani.innerHTML = ''; 
+    duzenlenenGorevId = null; 
+    dosyaSilinecekMi = false; 
     document.getElementById('baloncukKonu').value = "";
     document.getElementById('baloncukIcerik').value = "";
+    document.getElementById('baloncukDosya').value = ""; 
+    document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi."; 
+    document.getElementById('secilenDosyaIsmi').style.color = "#777";
+    document.getElementById('dosyaSilBtn').classList.add('gizli');
 
     if (oGunkuGorevler.length > 0) {
         formAlani.classList.add('gizli');
@@ -284,7 +273,12 @@ function baloncukAc(olay, gun, ay, yil) {
 function yeniGorevFormunuAc() {
     document.getElementById('baloncukKonu').value = "";
     document.getElementById('baloncukIcerik').value = "";
-    duzenlenenGorevId = null;
+    document.getElementById('baloncukDosya').value = ""; 
+    document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
+    document.getElementById('secilenDosyaIsmi').style.color = "#777";
+    document.getElementById('dosyaSilBtn').classList.add('gizli');
+    dosyaSilinecekMi = false;
+    duzenlenenGorevId = null; 
     document.getElementById('baloncukFormAlani').classList.remove('gizli');
     document.getElementById('baloncukYeniGorevBtn').classList.add('gizli');
 }
@@ -294,31 +288,100 @@ function goreviDuzenle(id) {
     if (gorev) {
         document.getElementById('baloncukKonu').value = gorev.baslik;
         document.getElementById('baloncukIcerik').value = gorev.aciklama;
-        duzenlenenGorevId = id;
+        document.getElementById('baloncukDosya').value = "";
+        document.getElementById('secilenDosyaIsmi').style.color = "#777";
+        dosyaSilinecekMi = false;
+        
+        if (gorev.dosya_adresi) {
+            document.getElementById('secilenDosyaIsmi').textContent = "Mevcut Dosya: " + gorev.dosya_adresi;
+            document.getElementById('dosyaSilBtn').classList.remove('gizli'); // Sil ikonunu göster
+        } else {
+            document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
+            document.getElementById('dosyaSilBtn').classList.add('gizli');
+        }
+        
+        duzenlenenGorevId = id; 
         document.getElementById('baloncukFormAlani').classList.remove('gizli');
         document.getElementById('baloncukYeniGorevBtn').classList.add('gizli');
     }
 }
 
-function goreviSil(id) {
-    gorevler = gorevler.filter(g => g.id !== id);
-    gorevleriEkranaYazdir();
-    baloncukIceriginiGuncelleVeyaKapat();
+function listedenGoreviDuzenle(id) {
+    const gorev = gorevler.find(g => g.id === id);
+    if (!gorev) return;
+
+    if (gosterilenAy !== gorev.ayNo || gosterilenYil !== gorev.yilNo) {
+        gosterilenAy = gorev.ayNo;
+        gosterilenYil = gorev.yilNo;
+        takvimOlustur();
+    }
+
+    const kutuId = 'takvim-kutu-' + gorev.yilNo + '-' + gorev.ayNo + '-' + gorev.gunNo;
+    const kutu = document.getElementById(kutuId);
+
+    if (kutu) {
+        kutu.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+        seciliGunNumarasi = gorev.gunNo; 
+        seciliAyBilgisi = gorev.ayNo; 
+        seciliYilBilgisi = gorev.yilNo; 
+        const ayIsimleri = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        seciliTarihBilgisi = gorev.gunNo + " " + ayIsimleri[gorev.ayNo] + " " + gorev.yilNo; 
+        
+        document.getElementById('modalBaslikYazisi').textContent = seciliTarihBilgisi + " Planları";
+
+        const baloncuk = document.getElementById('gorevBaloncugu');
+        baloncuk.classList.remove('gizli-tamamen');
+
+        document.getElementById('baloncukKonu').value = gorev.baslik;
+        document.getElementById('baloncukIcerik').value = gorev.aciklama;
+        document.getElementById('baloncukDosya').value = ""; 
+        document.getElementById('secilenDosyaIsmi').style.color = "#777";
+        dosyaSilinecekMi = false;
+
+        if (gorev.dosya_adresi) {
+            document.getElementById('secilenDosyaIsmi').textContent = "Mevcut Dosya: " + gorev.dosya_adresi;
+            document.getElementById('dosyaSilBtn').classList.remove('gizli');
+        } else {
+            document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
+            document.getElementById('dosyaSilBtn').classList.add('gizli');
+        }
+        
+        duzenlenenGorevId = id; 
+        document.getElementById('baloncukMevcutGorevler').innerHTML = ''; 
+        document.getElementById('baloncukFormAlani').classList.remove('gizli'); 
+        document.getElementById('baloncukYeniGorevBtn').classList.add('gizli');
+    }
 }
 
 function baloncuguKapat() {
     document.getElementById('gorevBaloncugu').classList.add('gizli-tamamen');
     document.getElementById('baloncukKonu').value = "";
     document.getElementById('baloncukIcerik').value = "";
+    document.getElementById('baloncukDosya').value = "";
+    document.getElementById('secilenDosyaIsmi').textContent = "Henüz dosya seçilmedi.";
+    document.getElementById('dosyaSilBtn').classList.add('gizli');
+    dosyaSilinecekMi = false;
     duzenlenenGorevId = null;
 }
 
-// ==========================================
-// BALONCUKTAN VERİ KAYDETME / GÜNCELLEME
-// ==========================================
-function baloncuktanKaydet() {
+async function goreviSil(id) {
+    try {
+        await fetch("http://127.0.0.1:8000/gorev_sil/" + id, { method: "DELETE" });
+        gorevler = gorevler.filter(g => g.id !== id);
+        gorevleriEkranaYazdir();
+        baloncukIceriginiGuncelleVeyaKapat();
+    } catch(hata) {
+        console.error("Silme hatası:", hata);
+    }
+}
+
+async function baloncuktanKaydet() {
     const konu = document.getElementById('baloncukKonu').value;
     const icerik = document.getElementById('baloncukIcerik').value;
+    
+    const dosyaKutusu = document.getElementById('baloncukDosya');
+    const secilenDosya = dosyaKutusu.files[0];
 
     if (konu === "" || icerik === "") {
         alert("Lütfen Konu ve Açıklama alanlarını doldurun.");
@@ -327,49 +390,113 @@ function baloncuktanKaydet() {
 
     if (duzenlenenGorevId !== null) {
         const varOlanGorev = gorevler.find(g => g.id === duzenlenenGorevId);
-        if (varOlanGorev) {
-            varOlanGorev.baslik = konu;
-            varOlanGorev.aciklama = icerik;
-        }
-    } else {
-        const yeniGorev = {
-            id: Date.now(),
-            baslik: konu,
-            aciklama: icerik,
-            tarih: seciliTarihBilgisi,
-            gunNo: seciliGunNumarasi,
-            ayNo: seciliAyBilgisi,
-            yilNo: seciliYilBilgisi,
-            durum: false
-        };
-        gorevler.push(yeniGorev);
-    }
+        if(varOlanGorev) {
+            
+            const paket = new FormData();
+            paket.append("baslik", konu);
+            paket.append("aciklama", icerik);
+            paket.append("durum", varOlanGorev.durum);
+            
+            // YENİ EKLENDİ: Dosyayı silme uyarısı Python'a gidiyor
+            paket.append("dosya_sil", dosyaSilinecekMi);
+            
+            if (secilenDosya) {
+                paket.append("dosya", secilenDosya);
+            }
 
-    baloncuguKapat();
-    gorevleriEkranaYazdir();
+            try {
+                const cevap = await fetch("http://127.0.0.1:8000/gorev_guncelle/" + duzenlenenGorevId, {
+                    method: "PUT",
+                    body: paket
+                });
+
+                if (cevap.ok) {
+                    const sonuc = await cevap.json();
+                    varOlanGorev.baslik = konu;
+                    varOlanGorev.aciklama = icerik;
+                    
+                    if (dosyaSilinecekMi) {
+                        varOlanGorev.dosya_adresi = null;
+                        varOlanGorev.dosya_tipi = null;
+                    }
+                    
+                    if (secilenDosya) {
+                        varOlanGorev.dosya_adresi = sonuc.dosya_adresi;
+                        varOlanGorev.dosya_tipi = sonuc.dosya_tipi;
+                    }
+                }
+            } catch (hata) {
+                console.error("Güncelleme hatası", hata);
+            }
+        }
+        baloncuguKapat();
+        gorevleriEkranaYazdir(); 
+        baloncukIceriginiGuncelleVeyaKapat();
+    } 
+    else {
+        const kargoPaketi = new FormData();
+        kargoPaketi.append("baslik", konu);
+        kargoPaketi.append("aciklama", icerik);
+        kargoPaketi.append("tarih", seciliTarihBilgisi);
+        kargoPaketi.append("gunNo", seciliGunNumarasi);
+        kargoPaketi.append("ayNo", seciliAyBilgisi);
+        kargoPaketi.append("yilNo", seciliYilBilgisi);
+        
+        if (secilenDosya) {
+            kargoPaketi.append("dosya", secilenDosya);
+        }
+
+        try {
+            const cevap = await fetch("http://127.0.0.1:8000/gorev_ekle", {
+                method: "POST",
+                body: kargoPaketi
+            });
+
+            if (cevap.ok) {
+                const sonuc = await cevap.json();
+                
+                const yeniGorev = {
+                    id: sonuc.gorev_id, 
+                    baslik: konu,
+                    aciklama: icerik,
+                    tarih: seciliTarihBilgisi, 
+                    gunNo: seciliGunNumarasi, 
+                    ayNo: seciliAyBilgisi,     
+                    yilNo: seciliYilBilgisi,   
+                    durum: false,
+                    dosya_adresi: sonuc.dosya_adresi, 
+                    dosya_tipi: sonuc.dosya_tipi 
+                };
+                
+                gorevler.push(yeniGorev); 
+                baloncuguKapat();
+                gorevleriEkranaYazdir(); 
+                baloncukIceriginiGuncelleVeyaKapat();
+            }
+        } catch (hata) {
+            alert("Sisteme ulaşılamıyor, arka planın çalıştığından emin olun.");
+        }
+    }
 }
 
-// ==========================================
-// GERÇEK ZAMANLI RENKLENDİRME
-// ==========================================
 function takvimiRenklendir() {
     const simdi = new Date();
     const bugunTarihi = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate());
 
     const tumKutular = document.querySelectorAll('.takvim-gunu');
-    tumKutular.forEach(function (kutu) {
+    tumKutular.forEach(function(kutu) {
         kutu.classList.remove('gun-yesil', 'gun-sari', 'gun-kirmizi');
-        kutu.removeAttribute('data-konu');
+        kutu.removeAttribute('data-konu'); 
     });
 
-    gorevler.forEach(function (gorev) {
+    gorevler.forEach(function(gorev) {
         if (!gorev.durum) {
             const kutu = document.getElementById('takvim-kutu-' + gorev.yilNo + '-' + gorev.ayNo + '-' + gorev.gunNo);
-
+            
             if (kutu) {
                 let mevcutKonu = kutu.getAttribute('data-konu');
                 if (mevcutKonu) {
-                    kutu.setAttribute('data-konu', mevcutKonu + " & " + gorev.baslik);
+                    kutu.setAttribute('data-konu', mevcutKonu + " & " + gorev.baslik); 
                 } else {
                     kutu.setAttribute('data-konu', gorev.baslik);
                 }
@@ -382,66 +509,93 @@ function takvimiRenklendir() {
                     if (!kutu.classList.contains('gun-kirmizi') && !kutu.classList.contains('gun-sari')) {
                         kutu.classList.add('gun-yesil');
                     }
-                }
+                } 
                 else if (kalanGunFarki <= 5 && kalanGunFarki > 3) {
                     if (!kutu.classList.contains('gun-kirmizi')) {
                         kutu.classList.add('gun-sari');
-                        kutu.classList.remove('gun-yesil');
+                        kutu.classList.remove('gun-yesil'); 
                     }
-                }
+                } 
                 else if (kalanGunFarki <= 3) {
                     kutu.classList.add('gun-kirmizi');
-                    kutu.classList.remove('gun-yesil', 'gun-sari');
+                    kutu.classList.remove('gun-yesil', 'gun-sari'); 
                 }
             }
         }
     });
 }
 
-// ==========================================
-// GÖREVLERİ EKRANA ÇİZDİRME VE DURUM DEĞİŞTİRME
-// ==========================================
 function gorevleriEkranaYazdir() {
     const takvimAltiAlani = document.getElementById('takvimAltiGorevler');
     if (takvimAltiAlani) takvimAltiAlani.innerHTML = '';
 
     if (gorevler.length === 0) {
         if (takvimAltiAlani) takvimAltiAlani.innerHTML = '<p>Henüz bir plan eklenmedi.</p>';
-        takvimiRenklendir();
-        return;
+        takvimiRenklendir(); 
+        return; 
     }
 
-    gorevler.sort(function (a, b) {
+    gorevler.sort(function(a, b) {
         const tarihA = new Date(a.yilNo, a.ayNo, a.gunNo).getTime();
         const tarihB = new Date(b.yilNo, b.ayNo, b.gunNo).getTime();
-        return tarihA - tarihB;
+        return tarihA - tarihB; 
     });
 
-    gorevler.forEach(function (gorev) {
+    gorevler.forEach(function(gorev) {
         const tamamlandiSinifi = gorev.durum ? 'gorev-tamamlandi' : '';
         const butonMetni = gorev.durum ? 'İptal Et (Geri Al)' : 'Tamamlandı İşaretle';
 
+        let dosyaEkiHTML = "";
+        if (gorev.dosya_adresi) {
+            const dosyaUrl = "http://127.0.0.1:8000/dosyalar/" + encodeURIComponent(gorev.dosya_adresi);
+            
+            if (gorev.dosya_tipi === "resim") {
+                dosyaEkiHTML = `<div><a href="${dosyaUrl}" target="_blank"><img src="${dosyaUrl}" class="gorsel-onizleme"></a></div>`;
+            } else {
+                dosyaEkiHTML = `<div><a href="${dosyaUrl}" target="_blank" class="pdf-butonu">📄 PDF Dosyasını Görüntüle</a></div>`;
+            }
+        }
+
         const gorevHTML = `
             <div class="gorev-karti ${tamamlandiSinifi}">
-                <h3>${gorev.baslik}</h3>
+                <div class="karti-baslik-alani">
+                    <h3>${gorev.baslik}</h3>
+                    <div class="ikon-grubu">
+                        <span onclick="listedenGoreviDuzenle(${gorev.id})" title="Düzenle">✏️</span>
+                        <span onclick="goreviSil(${gorev.id})" title="Sil">🗑️</span>
+                    </div>
+                </div>
                 <p><strong>${gorev.tarih} :</strong> ${gorev.aciklama}</p>
+                ${dosyaEkiHTML}
+                <br>
                 <button onclick="gorevDurumuDegistir(${gorev.id})">${butonMetni}</button>
             </div>
         `;
-
-        if (takvimAltiAlani) takvimAltiAlani.innerHTML += gorevHTML;
+        
+        if (takvimAltiAlani) takvimAltiAlani.innerHTML += gorevHTML; 
     });
 
     takvimiRenklendir();
 }
 
-function gorevDurumuDegistir(id) {
-    gorevler.forEach(function (gorev) {
-        if (gorev.id === id) {
-            gorev.durum = !gorev.durum;
-        }
-    });
+async function gorevDurumuDegistir(id) {
+    const gorev = gorevler.find(g => g.id === id);
+    if (gorev) {
+        gorev.durum = !gorev.durum; 
+        
+        const paket = new FormData();
+        paket.append("baslik", gorev.baslik);
+        paket.append("aciklama", gorev.aciklama);
+        paket.append("durum", gorev.durum);
 
+        try {
+            await fetch("http://127.0.0.1:8000/gorev_guncelle/" + id, {
+                method: "PUT",
+                body: paket
+            });
+        } catch(e) { console.log(e); }
+    }
+    
     gorevleriEkranaYazdir();
     baloncukIceriginiGuncelleVeyaKapat();
 }

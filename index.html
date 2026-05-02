@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <title>StudyMate</title>
-    <!-- Google Fonts'tan modern bir yazı tipi ekliyoruz -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- CSS dosyamızı buraya bağlıyoruz -->
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <!-- Üst Menü: Başlangıçta gizli olacak, giriş yapınca görünecek -->
     <header id="anaMenu" class="gizli">
         <h1>StudyMate</h1>
         <nav>
@@ -20,9 +15,7 @@
         </nav>
     </header>
 
-    <!-- Ana İçerik Alanı -->
     <main>
-        <!-- 1. GİRİŞ SAYFASI -->
         <section id="girisSayfasi">
             <h2>StudyMate'e Hoş Geldiniz</h2>
             <p>Derslerinizi ve görevlerinizi akıllı takvim ile takip edin.</p>
@@ -33,9 +26,7 @@
             </form>
         </section>
 
-        <!-- 2. ÜST DÜZEY TAKVİM VE PLANLAMA SAYFASI -->
         <section id="planlamaSayfasi" class="gizli">
-
             <div class="takvim-bari" onclick="takvimiAcKapat()">
                 <div class="takvim-sol">Takvim</div>
                 <div class="takvim-orta" id="tarihYazisi">Tarih Yükleniyor...</div>
@@ -46,7 +37,6 @@
             </div>
 
             <div id="takvimIcerik" class="gizli-takvim">
-
                 <div class="ay-degistirici">
                     <button class="ok-butonu" onclick="ayDegistir(-1)">&#9664; Önceki Ay</button>
                     <h3 id="gosterilenAyYazisi">Ay Yükleniyor...</h3>
@@ -54,18 +44,9 @@
                 </div>
 
                 <div id="haftaninGunleri">
-                    <div>Pt</div>
-                    <div>Sa</div>
-                    <div>Ça</div>
-                    <div>Pe</div>
-                    <div>Cu</div>
-                    <div>Ct</div>
-                    <div>Pa</div>
+                    <div>Pt</div><div>Sa</div><div>Ça</div><div>Pe</div><div>Cu</div><div>Ct</div><div>Pa</div>
                 </div>
-
-                <div id="takvimIzgarasi">
-                    <!-- Günler buraya JavaScript ile dizilecek -->
-                </div>
+                <div id="takvimIzgarasi"></div>
             </div>
 
             <div class="takvim-alti-kutu">
@@ -74,32 +55,48 @@
                     <p>Henüz bir plan eklenmedi.</p>
                 </div>
             </div>
-
         </section>
     </main>
 
-    <!-- GİZLİ BALONCUK (Zarifleştirildi) -->
+    <!-- YENİ MİMARİ: Eski adı gorevBaloncugu olan yapıyı artık Modal ekranı olarak kullanıyoruz -->
     <div id="gorevBaloncugu" class="gizli-tamamen">
-
-        <div id="baloncukMevcutGorevler"></div>
-
-        <button id="baloncukYeniGorevBtn" onclick="yeniGorevFormunuAc()" class="btn-yeni-ekle gizli">Yeni Görev
-            Ekle</button>
-
-        <!-- Form Alanı -->
-        <div id="baloncukFormAlani">
-            <input type="text" id="baloncukKonu" placeholder="Konu veya Ders İsmi">
-            <textarea id="baloncukIcerik" placeholder="Konunun açıklamasını giriniz..." rows="3"></textarea>
-
-            <div class="baloncuk-butonlar">
-                <button onclick="baloncuktanKaydet()" class="btn-kaydet">Kaydet</button>
-                <button onclick="baloncuguKapat()" class="btn-iptal">İptal</button>
+        
+        <!-- YENİ: Ortada açılan beyaz içerik kutusu -->
+        <div class="modal-icerik">
+            
+            <!-- Çarpı butonu olan şık bir başlık -->
+            <div class="modal-baslik">
+                <h3 id="modalBaslikYazisi">Görevler</h3>
+                <button class="modal-kapat-btn" onclick="baloncuguKapat()">✖</button>
             </div>
+
+            <div id="baloncukMevcutGorevler"></div>
+            <button id="baloncukYeniGorevBtn" onclick="yeniGorevFormunuAc()" class="btn-yeni-ekle gizli">Yeni Görev Ekle</button>
+            
+            <div id="baloncukFormAlani">
+                <input type="text" id="baloncukKonu" placeholder="Konu veya Ders İsmi">
+                <textarea id="baloncukIcerik" placeholder="Konunun açıklamasını giriniz..." rows="3"></textarea>
+                
+                <div class="dosya-yukleme-alani">
+                    <label for="baloncukDosya" class="dosya-yukleme-butonu">📎 PDF veya Resim Ekle</label>
+                    <input type="file" id="baloncukDosya" accept=".pdf, image/*" class="gizli-dosya-secici">
+                    
+                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:5px;">
+                        <span id="secilenDosyaIsmi" class="secilen-dosya-ismi">Henüz dosya seçilmedi.</span>
+                        <!-- YENİ: Dosya Silme İkonu (Sadece dosyası olan görevlerde çıkar) -->
+                        <span id="dosyaSilBtn" class="gizli" style="cursor:pointer; font-size:16px;" onclick="mevcutDosyayiSilmeyiIsaretle()" title="Mevcut Dosyayı Sil">🗑️</span>
+                    </div>
+                </div>
+                
+                <div class="baloncuk-butonlar">
+                    <button onclick="baloncuktanKaydet()" class="btn-kaydet">Kaydet</button>
+                    <button onclick="baloncuguKapat()" class="btn-iptal">İptal</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- JavaScript dosyamızı projenin en sonunda çağırıyoruz -->
     <script src="script.js"></script>
 </body>
-
 </html>
