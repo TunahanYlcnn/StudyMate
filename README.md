@@ -42,7 +42,7 @@ Bilgisayarınızda Docker Desktop kurulu ve çalışır durumda olmalıdır.
 ### 2. Sistemi Tek Komutla Başlatma
 Projenin kütüphanelerini, veritabanını ve sunucusunu tek seferde hazır hale getirmek için:
 
-1. Proje ana klasöründe bir terminal (CMD/PowerShell) açın.
+1. Backend klasöründe bir terminal (CMD/PowerShell) açın.
 
 2. Aşağıdaki komutu çalıştırın:
 ```bash
@@ -66,6 +66,8 @@ StudyMate/
     ├── main.py         # API Rotaları (CRUD, Dosya işlemleri, Auth)
     ├── database.py     # PostgreSQL bağlantısı ve ORM modelleri
     ├── docker-compose.yml # PostgreSQL Docker yapılandırması
+    ├── requirements.txt# Otomatik yüklenecek Python kütüphaneleri    
+    ├── Dockerfile      # Uygulamanın Docker imaj kurulum talimatları
     └── yuklenen_dosyalar/ # Kullanıcı yüklemeleri (PDF / Görsel)
 ```
 
