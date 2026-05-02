@@ -46,7 +46,7 @@ Projenin kütüphanelerini, veritabanını ve sunucusunu tek seferde hazır hale
 
 2. Aşağıdaki komutu çalıştırın:
 ```bash
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 ### 4. Ön Yüzü Çalıştırma
