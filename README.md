@@ -52,27 +52,21 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 ### 3. Arka Planı (API) Çalıştırma
 
 1. Yine arka\_plan klasörü içindeki terminalde şu komutla gerekli Python eklentilerini kurun:
-
-  ```bash
+     ```bash
   pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart
 
 
 
-2. Kurulum bittikten sonra API sunucumuzu başlatın:
-
+3. Kurulum bittikten sonra API sunucumuzu başlatın:
   ```bash
   uvicorn main:app --reload
-
 
 
 ### 4. Ön Yüzü Çalıştırma
 
 1. Ana proje klasöründeki index.html dosyasını VS Code vb. bir editör ile açın.
-
 2. Live Server eklentisi ile (veya dosyaya çift tıklayarak) tarayıcıda çalıştırın.
-
 3. Çıkan ekranda yeni bir hesap oluşturup sistemi kullanmaya başlayabilirsiniz!
-
 
 
 StudyMate/
