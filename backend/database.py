@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://studymate_admin:gizli_sifre_123@localhost:5432/studymate_veritabani"
+SQLALCHEMY_DATABASE_URL = "postgresql://studymate_admin:gizli_sifre_123@veritabani:5432/studymate_veritabani"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 OturumLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

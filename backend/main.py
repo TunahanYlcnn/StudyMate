@@ -1,14 +1,42 @@
 import os
 import shutil
+import time
 from typing import List, Optional
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles 
 from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 from database import engine, Base, OturumLocal, Gorev, Kullanici
 
-Base.metadata.create_all(bind=engine)
+# ==========================================
+# KÖKTEN ÇÖZÜM: BAĞLANTI KONTROL DÖNGÜSÜ
+# ==========================================
+def veritabani_hazir_mi(engine, max_deneme=10):
+    """Veritabanı bağlantısı kurulana kadar bekler."""
+    deneme = 0
+    while deneme < max_deneme:
+        try:
+            # Bağlantıyı test et
+            with engine.connect() as connection:
+                print("✅ Veritabanı bağlantısı başarılı!")
+                return True
+        except OperationalError:
+            deneme += 1
+            print(f"⏳ Veritabanı henüz hazır değil... ({deneme}/{max_deneme}) 3 saniye sonra tekrar denenecek.")
+            time.sleep(3)
+    return False
 
+# Uygulama başlamadan önce tabloları oluşturmaya çalışmadan önce bekle
+if veritabani_hazir_mi(engine):
+    Base.metadata.create_all(bind=engine)
+else:
+    print("❌ Kritik Hata: Veritabanına ulaşılamadı!")
+
+# ==========================================
+# API BAŞLANGICI
+# ==========================================
 app = FastAPI(title="StudyMate API")
 
 app.add_middleware(
@@ -37,7 +65,7 @@ def ana_sayfa():
     return {"mesaj": "StudyMate API Tam Sürüm Çalışıyor 🚀"}
 
 # ==========================================
-# YENİ: KULLANICI KAYIT OLMA (REGISTER)
+# KULLANICI İŞLEMLERİ
 # ==========================================
 @app.post("/kayit_ol")
 def kayit_ol(
@@ -46,7 +74,6 @@ def kayit_ol(
     sifre: str = Form(...),
     db: Session = Depends(veritabani_getir)
 ):
-    # Bu kullanıcı adı veya e-posta daha önce alınmış mı kontrol et
     kullanici_var_mi = db.query(Kullanici).filter((Kullanici.kullanici_adi == kullanici_adi) | (Kullanici.eposta == eposta)).first()
     if kullanici_var_mi:
         raise HTTPException(status_code=400, detail="Bu kullanıcı adı veya e-posta zaten kullanımda!")
@@ -56,9 +83,6 @@ def kayit_ol(
     db.commit()
     return {"mesaj": "Kayıt başarıyla oluşturuldu!"}
 
-# ==========================================
-# YENİ: KULLANICI GİRİŞ YAPMA (LOGIN)
-# ==========================================
 @app.post("/giris_yap")
 def giris_yap(
     kullanici_adi: str = Form(...),
@@ -69,21 +93,19 @@ def giris_yap(
     if not kullanici:
         raise HTTPException(status_code=400, detail="Hatalı kullanıcı adı veya şifre!")
     
-    # Giriş başarılıysa ön yüze kullanıcının ID'sini (kimliğini) yolla
     return {"mesaj": "Giriş başarılı", "kullanici_id": kullanici.id, "kullanici_adi": kullanici.kullanici_adi}
 
 # ==========================================
-# GÜNCELLENDİ: SADECE GİRİŞ YAPAN KULLANICININ GÖREVLERİNİ GETİRİR
+# GÖREV İŞLEMLERİ
 # ==========================================
 @app.get("/gorevler/{kullanici_id}")
 def gorevleri_getir(kullanici_id: int, db: Session = Depends(veritabani_getir)):
     gorevler = db.query(Gorev).filter(Gorev.kullanici_id == kullanici_id).all()
     return gorevler
 
-
 @app.post("/gorev_ekle")
 async def gorev_ekle(
-    kullanici_id: int = Form(...), # YENİ: Görevi kimin eklediğini alıyoruz
+    kullanici_id: int = Form(...), 
     baslik: str = Form(...),
     aciklama: str = Form(...),
     tarih: str = Form(...),
@@ -98,7 +120,7 @@ async def gorev_ekle(
     if dosyalar:
         for dosya in dosyalar:
             if dosya.filename: 
-                dosya_yolu = f"{DOSYA_KLASORU}/{dosya.filename}"
+                dosya_yolu = os.path.join(DOSYA_KLASORU, dosya.filename)
                 with open(dosya_yolu, "wb") as buffer:
                     shutil.copyfileobj(dosya.file, buffer)
                 kaydedilenler.append(dosya.filename)
@@ -106,7 +128,7 @@ async def gorev_ekle(
     dosya_adresi = "|".join(kaydedilenler) if kaydedilenler else None
 
     yeni_gorev = Gorev(
-        kullanici_id=kullanici_id, # YENİ: Görevi kullanıcıya bağladık
+        kullanici_id=kullanici_id, 
         baslik=baslik,
         aciklama=aciklama,
         tarih=tarih,
@@ -114,7 +136,6 @@ async def gorev_ekle(
         ayNo=ayNo,
         yilNo=yilNo,
         dosya_adresi=dosya_adresi,
-        dosya_tipi=None, 
         durum=False
     )
 
@@ -123,7 +144,6 @@ async def gorev_ekle(
     db.refresh(yeni_gorev)
 
     return {"mesaj": "Görev eklendi!", "gorev_id": yeni_gorev.id, "dosya_adresi": dosya_adresi}
-
 
 @app.put("/gorev_guncelle/{id}")
 def gorevi_guncelle(
@@ -146,7 +166,7 @@ def gorevi_guncelle(
         
         for eski in eski_dosya_listesi:
             if eski not in kalan_liste:
-                silinecek_yol = f"{DOSYA_KLASORU}/{eski}"
+                silinecek_yol = os.path.join(DOSYA_KLASORU, eski)
                 if os.path.exists(silinecek_yol):
                     os.remove(silinecek_yol)
         
@@ -154,7 +174,7 @@ def gorevi_guncelle(
         if dosyalar:
             for dosya in dosyalar:
                 if dosya.filename:
-                    yol = f"{DOSYA_KLASORU}/{dosya.filename}"
+                    yol = os.path.join(DOSYA_KLASORU, dosya.filename)
                     with open(yol, "wb") as buffer:
                         shutil.copyfileobj(dosya.file, buffer)
                     yeni_eklenenler.append(dosya.filename)
@@ -169,7 +189,6 @@ def gorevi_guncelle(
         }
     return {"hata": "Görev bulunamadı"}
 
-
 @app.delete("/gorev_sil/{id}")
 def gorevi_sil(id: int, db: Session = Depends(veritabani_getir)):
     silinecek = db.query(Gorev).filter(Gorev.id == id).first()
@@ -177,7 +196,7 @@ def gorevi_sil(id: int, db: Session = Depends(veritabani_getir)):
         if silinecek.dosya_adresi:
             dosya_isimleri = silinecek.dosya_adresi.split("|")
             for d_isim in dosya_isimleri:
-                eski_dosya = f"{DOSYA_KLASORU}/{d_isim}"
+                eski_dosya = os.path.join(DOSYA_KLASORU, d_isim)
                 if os.path.exists(eski_dosya):
                     os.remove(eski_dosya)
 

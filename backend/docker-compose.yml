@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # 1. Servis: Veritabanı
   veritabani:
     image: postgres:15
     container_name: studymate_db
@@ -13,6 +14,33 @@ services:
       - "5432:5432"
     volumes:
       - veritabani_hafizasi:/var/lib/postgresql/data
+    # YENİ: Veritabanının sadece çalışıp çalışmadığını değil, 
+    # bağlantı kabul edip etmediğini kontrol eder.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studymate_admin -d studymate_veritabani"]
+      interval: 5s   # Her 5 saniyede bir kontrol et
+      timeout: 5s    # Cevap gelmezse 5 saniye bekle
+      retries: 5     # 5 kez üst üste başarısız olursa 'unhealthy' (sağlıksız) işaretle
+
+  # 2. Servis: Senin Python Uygulaman
+  uygulama:
+    build:
+      context: .  # Dockerfile'ın olduğu klasör
+    container_name: studymate_app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # Veritabanı servis ismi 'veritabani' olduğu için host kısmı 'veritabani' kalmalıdır
+      - DATABASE_URL=postgresql://studymate_admin:gizli_sifre_123@veritabani:5432/studymate_veritabani
+    depends_on:
+      veritabani:
+        # GÜNCELLENDİ: Sadece konteynerın başlamasını değil, 
+        # healthcheck sonucunun 'sağlıklı' olmasını bekler.
+        condition: service_healthy 
+    volumes:
+      - .:/app  # Kodda bir değişiklik yaparsan anında yansır[cite: 1]
+      - ./yuklenen_dosyalar:/app/yuklenen_dosyalar # Yüklenen dosyalar kaybolmaz[cite: 1]
 
 volumes:
   veritabani_hafizasi:
